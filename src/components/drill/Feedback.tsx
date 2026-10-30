@@ -40,6 +40,12 @@ export function Feedback({ answered, showExplanation, isLast, onNext }: Props) {
         className="rounded-xl bg-zinc-800 py-3 text-lg font-semibold text-white hover:bg-zinc-700 focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:outline-none dark:bg-zinc-200 dark:text-zinc-900"
       >
         {isLast ? '結果を見る' : '次へ'}
+        <kbd
+          aria-hidden
+          className="ml-2 hidden font-sans text-xs font-normal opacity-60 pointer-fine:inline"
+        >
+          Enter
+        </kbd>
       </button>
     </div>
   );

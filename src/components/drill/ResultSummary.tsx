@@ -15,7 +15,7 @@ export function ResultSummary({ history, onRestart }: Props) {
   const mistakes = history.filter((h) => !h.correct);
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="mx-auto flex w-full flex-col gap-5 lg:max-w-3xl">
       <section aria-label="結果" className="text-center">
         <p className="text-5xl font-bold tabular-nums">
           {correctCount}
@@ -27,7 +27,7 @@ export function ResultSummary({ history, onRestart }: Props) {
       {mistakes.length > 0 ? (
         <section aria-label="間違えた問題">
           <h2 className="mb-2 font-semibold">間違えた問題</h2>
-          <ul className="flex flex-col gap-2">
+          <ul className="grid gap-2 md:grid-cols-2">
             {mistakes.map(({ question, given }, i) => (
               <li
                 key={i}
