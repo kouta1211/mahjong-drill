@@ -20,10 +20,28 @@ const shippori = Shippori_Mincho({
   preload: false,
 });
 
-// プレースホルダー: 公開前に文言を見直す
+const SITE_URL = 'https://mahjong-drill-phi.vercel.app';
+const DESCRIPTION =
+  'Mリーグルール準拠の麻雀点数計算ドリル。早見表・符計算・役と翻・総合の4段階で、手牌から点数申告まで練習できます。';
+
 export const metadata: Metadata = {
-  title: '麻雀点数計算ドリル',
-  description: '段階的に麻雀の点数計算を練習できるドリル',
+  // OGP 画像（opengraph-image.tsx）の URL を絶対 URL にするための基準
+  metadataBase: new URL(SITE_URL),
+  title: '麻雀点数計算ドリル — Mリーグルール準拠',
+  description: DESCRIPTION,
+  openGraph: {
+    title: '麻雀点数計算ドリル',
+    description: DESCRIPTION,
+    url: SITE_URL,
+    siteName: '麻雀点数計算ドリル',
+    locale: 'ja_JP',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: '麻雀点数計算ドリル',
+    description: DESCRIPTION,
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<'/'>) {

@@ -33,3 +33,11 @@
 - `Drill` を `MotionConfig reducedMotion="user"` で包み、OS の「視差効果を減らす」に従う。`CountUp` はその設定のとき数え上げずに最終の値を出す
 - 数え上げの数字は `aria-hidden` にし、読み上げには最終の値を書いた `sr-only` の文を使う
 - テストでは `vitest.setup.ts` の `MotionGlobalConfig.skipAnimations` でアニメーションを止める
+
+## OGP 画像
+
+`src/app/opengraph-image.tsx`（X 用の `twitter-image.tsx` は同じ画像を使う）。アイコンは `src/app/icon.svg`。
+
+- 文字は Shippori Mincho。日本語のフォントを丸ごと同梱すると数 MB になるため、画像に使う文字だけを含むフォント（`src/app/fonts/ShipporiMincho-Bold-og-subset.ttf`）を同梱している。ライセンスは `src/app/fonts/OFL.txt`
+- 含まれる文字は `src/app/fonts/og-subset-chars.txt`。画像の文言（`OG_TEXTS`）に一覧にない文字が入ると、`opengraph-image.test.ts` が落ちる
+- **フォントの作り直し方**: `og-subset-chars.txt` に文字を足し、`https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@700&text=<文字をURLエンコード>` を curl で取得する。返ってきた CSS の `src: url(...)` の TrueType を、上のファイル名で置き換える（curl の既定の User-Agent なら TrueType が返る）
