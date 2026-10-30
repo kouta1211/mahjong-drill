@@ -21,6 +21,14 @@ function expectedRounds(settings: DrillSettings, seed: number) {
   return createLv1Rounds(settings, seededRng(seed));
 }
 
+/** 卓の外のプログレスバーで、いま何問目かを読み上げられる */
+function expectProgress(text: string) {
+  expect(screen.getByRole('progressbar', { name: '進み具合' })).toHaveAttribute(
+    'aria-valuetext',
+    text
+  );
+}
+
 describe('Drill（4択）', () => {
   it('設定 → 回答 → 正誤 → 結果 まで1周できる', async () => {
     const user = userEvent.setup();
@@ -32,7 +40,7 @@ describe('Drill（4択）', () => {
     await user.click(screen.getByRole('button', { name: 'はじめる' }));
 
     for (const [i, { question, choices }] of rounds.entries()) {
-      expect(screen.getByText(`第${i + 1}問 / 5問`)).toBeInTheDocument();
+      expectProgress(`第${i + 1}問 / 5問`);
       const answer = formatPayment(question.answer);
       // 1問目だけ間違え、残りは正解する
       const pick =
@@ -85,7 +93,7 @@ describe('Drill（キーボード操作）', () => {
     expect(screen.getByRole('status')).toHaveTextContent('正解！');
 
     await user.keyboard('{Enter}');
-    expect(screen.getByText('第2問 / 10問')).toBeInTheDocument();
+    expectProgress('第2問 / 10問');
   });
 
   it('修飾キー付きや範囲外の数字では選ばない', async () => {

@@ -41,12 +41,11 @@ export const lv4View: LevelView<Lv4Question, Payment> = {
   format: formatPayment,
   isSame: isSamePayment,
   choiceLayout: 'grid',
-  renderQuestion: (question, number, total) => (
+  renderQuestion: (question, number) => (
     <HandQuestionCard
       hand={question.hand}
       prompt="何点？"
       number={number}
-      total={total}
       isDealer={question.isDealer}
       honba={question.scoreQuestion.honba}
     >

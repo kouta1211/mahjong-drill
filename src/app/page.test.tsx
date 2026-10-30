@@ -6,7 +6,7 @@ describe('Home', () => {
   it('アプリ名の見出しを表示する', () => {
     render(<Home />);
     expect(
-      screen.getByRole('heading', { level: 1, name: '麻雀点数計算ドリル' })
+      screen.getByRole('heading', { level: 1, name: '麻雀点数計算' })
     ).toBeInTheDocument();
   });
 });
