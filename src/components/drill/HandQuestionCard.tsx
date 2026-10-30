@@ -10,7 +10,6 @@ type Props = {
   /** 問いかけ（例: 符はいくつ？） */
   prompt: string;
   number: number;
-  total: number;
   /** 親か子かを見せる（Lv4）。省略すると出さない */
   isDealer?: boolean;
   /** 本場（Lv4）。0 や省略なら出さない */
@@ -26,16 +25,13 @@ export function HandQuestionCard({
   hand,
   prompt,
   number,
-  total,
   isDealer,
   honba = 0,
   children,
 }: Props) {
   return (
     <TableFrame label={`第${number}問`} className="lg:py-8">
-      <p className="text-sm opacity-80">
-        第{number}問 / {total}問 ・ {prompt}
-      </p>
+      <p className="text-sm opacity-90">{prompt}</p>
       <p className="mt-3 flex flex-wrap justify-center gap-2 text-sm">
         {isDealer !== undefined && <Badge>{isDealer ? '親' : '子'}</Badge>}
         <Badge>{windName(hand.roundWind)}場</Badge>

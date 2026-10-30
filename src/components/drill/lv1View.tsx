@@ -14,8 +14,8 @@ export const lv1View: LevelView<Question, Payment> = {
   format: formatPayment,
   isSame: isSamePayment,
   choiceLayout: 'grid',
-  renderQuestion: (question, number, total) => (
-    <QuestionCard question={question} number={number} total={total} />
+  renderQuestion: (question, number) => (
+    <QuestionCard question={question} number={number} />
   ),
   renderFreeAnswer: (round, props) => (
     <PaymentAnswer kind={round.answer.kind} {...props} />

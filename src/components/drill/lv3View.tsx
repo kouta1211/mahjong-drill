@@ -18,13 +18,8 @@ export const lv3View: LevelView<GeneratedYakuHand, YakuAnswer> = {
   format: formatYaku,
   isSame: isSameYaku,
   choiceLayout: 'list',
-  renderQuestion: (question, number, total) => (
-    <HandQuestionCard
-      hand={question.hand}
-      prompt="役は？"
-      number={number}
-      total={total}
-    />
+  renderQuestion: (question, number) => (
+    <HandQuestionCard hand={question.hand} prompt="役は？" number={number} />
   ),
   renderFreeAnswer: (round, props) => (
     <YakuPicker menzen={isMenzen(round.question.hand)} {...props} />

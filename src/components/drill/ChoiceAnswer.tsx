@@ -48,6 +48,22 @@ const CHOICE_MOTION: Record<ChoiceState, TargetAndTransition> = {
   other: {},
 };
 
+/** 数字はそのまま、単位や区切り（符・オール・-）は小さく出す。読み上げる名前は元の文字列のまま */
+function ScoreText({ text }: { text: string }) {
+  return text
+    .split(/(\d+)/)
+    .filter((part) => part !== '')
+    .map((part, i) =>
+      /^\d+$/.test(part) ? (
+        <span key={i}>{part}</span>
+      ) : (
+        <span key={i} className="mx-0.5 font-sans text-sm font-medium">
+          {part}
+        </span>
+      )
+    );
+}
+
 /** 入力欄で打った数字や、修飾キー付きの操作は選択肢として扱わない */
 function isPlainKey(e: KeyboardEvent): boolean {
   if (e.altKey || e.ctrlKey || e.metaKey || e.isComposing) return false;
@@ -102,7 +118,7 @@ export function ChoiceAnswer<A>({
             whileTap={given === null ? { scale: 0.97 } : undefined}
             className={`${CHOICE_BASE} ${CHOICE_CLASS[state]} ${
               layout === 'grid'
-                ? 'py-4 text-xl'
+                ? 'font-display py-5 text-2xl font-extrabold md:text-3xl'
                 : 'px-8 py-3 text-left text-base'
             }`}
           >
@@ -112,7 +128,11 @@ export function ChoiceAnswer<A>({
             >
               {i + 1}
             </kbd>
-            {format(choice)}
+            {layout === 'grid' ? (
+              <ScoreText text={format(choice)} />
+            ) : (
+              format(choice)
+            )}
           </motion.button>
         );
       })}

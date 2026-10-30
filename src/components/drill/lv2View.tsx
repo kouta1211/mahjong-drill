@@ -18,12 +18,11 @@ export const lv2View: LevelView<GeneratedHand, number> = {
   format: (fu) => `${fu}符`,
   isSame: isSameFu,
   choiceLayout: 'grid',
-  renderQuestion: (question, number, total) => (
+  renderQuestion: (question, number) => (
     <HandQuestionCard
       hand={question.hand}
       prompt="符はいくつ？"
       number={number}
-      total={total}
     />
   ),
   renderFreeAnswer: (_, props) => (

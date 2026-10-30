@@ -19,6 +19,7 @@
 - 見た目の型（主ボタン・次へ・選択チップ・入力欄など）は `src/components/ui/styles.ts` に定数としてまとめている
 - 卓の枠は `TableFrame`、卓の上の札は `Badge`
 - 見出しと大きな数字は明朝体（`font-display`、Shippori Mincho）
+- 出題中の画面は、2026-10-30 に user が選んだデザイン案 A（https://claude.ai/artifact/RJQ1Tef99cEb3tLzxpZjYA）に合わせている。進み具合は卓の外のバー（`DrillSession` の `Progress`）、符・翻は数字を大きく単位を小さく、4択の単位（オール・-・符）も小さく出す（`ChoiceAnswer` の `ScoreText`）
 
 ## アニメーション（`motion`）
 
