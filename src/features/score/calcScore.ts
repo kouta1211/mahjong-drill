@@ -96,23 +96,42 @@ export function calcScore(
   const limit = limitOf(han, fu, rawBase, rules);
   const basePoints = limit === null ? rawBase : LIMIT_BASE_POINTS[limit];
 
-  let payment: Payment;
-  if (!isTsumo) {
-    payment = { kind: 'ron', total: ceil100(basePoints * (isDealer ? 6 : 4)) };
-  } else if (isDealer) {
-    payment = { kind: 'tsumoDealer', all: ceil100(basePoints * 2) };
-  } else {
-    payment = {
-      kind: 'tsumoNonDealer',
-      fromNonDealer: ceil100(basePoints),
-      fromDealer: ceil100(basePoints * 2),
-    };
-  }
-
   return {
     rawBasePoints: han >= 5 ? null : rawBase,
     basePoints,
     limit,
-    payment,
+    payment: paymentOf(basePoints, isDealer, isTsumo),
   };
+}
+
+/** 基本点から支払いを求める。ロンは子×4・親×6、ツモは子が基本点・親が×2（100点単位に切り上げ） */
+function paymentOf(
+  basePoints: number,
+  isDealer: boolean,
+  isTsumo: boolean
+): Payment {
+  if (!isTsumo) {
+    return { kind: 'ron', total: ceil100(basePoints * (isDealer ? 6 : 4)) };
+  }
+  if (isDealer) return { kind: 'tsumoDealer', all: ceil100(basePoints * 2) };
+  return {
+    kind: 'tsumoNonDealer',
+    fromNonDealer: ceil100(basePoints),
+    fromDealer: ceil100(basePoints * 2),
+  };
+}
+
+/**
+ * 役満の点数。公式ルール 第6章第6条「役満。散家 32,000点 荘家 48,000点」
+ * 「役満の複合はあり。2つの場合…2倍、3つの場合は…3倍」。count は役満の数。
+ */
+export function calcYakumanScore(
+  count: number,
+  isDealer: boolean,
+  isTsumo: boolean
+): Payment {
+  if (!Number.isInteger(count) || count < 1) {
+    throw new RangeError(`役満の数は1以上の整数で指定してください: ${count}`);
+  }
+  return paymentOf(LIMIT_BASE_POINTS.yakuman * count, isDealer, isTsumo);
 }
