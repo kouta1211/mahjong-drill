@@ -10,6 +10,7 @@ import { YakuBreakdown } from './Breakdown';
 import type { LevelView } from './DrillSession';
 import { describeHand, HandQuestionCard } from './HandQuestionCard';
 import { YakuPicker } from './YakuPicker';
+import { YAKU } from '@/features/yaku/yakuList';
 
 /** Lv3（役・翻）: 手牌から成立する役を答える */
 export const lv3View: LevelView<GeneratedYakuHand, YakuAnswer> = {
@@ -32,4 +33,8 @@ export const lv3View: LevelView<GeneratedYakuHand, YakuAnswer> = {
     <YakuBreakdown yaku={analysis.yaku} totalHan={analysis.han} />
   ),
   describe: ({ hand }) => describeHand(hand),
+  tagsOf: ({ question: { hand }, answer }) => [
+    isMenzen(hand) ? '門前' : '副露',
+    ...answer.ids.map((id) => `役: ${YAKU[id].name}`),
+  ],
 };

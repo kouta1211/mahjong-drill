@@ -37,7 +37,8 @@ export type FuResult = {
   isPinfu: boolean;
 };
 
-const WAIT_LABEL = {
+/** 待ちの形の名前（解説と、成績の分類に使う） */
+export const WAIT_LABEL = {
   ryanmen: '両面',
   kanchan: '嵌張',
   penchan: '辺張',

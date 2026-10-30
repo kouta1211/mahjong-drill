@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { StrictMode } from 'react';
 import { describe, expect, it } from 'vitest';
 import { formatPayment } from '@/features/drill/payment';
 import {
@@ -12,6 +13,7 @@ import { formatYaku } from '@/features/drill/yakuAnswer';
 import { YAKU } from '@/features/yaku/yakuList';
 import { seededRng } from '@/lib/testRng';
 import { DEFAULT_SETTINGS, type DrillSettings } from '@/features/drill/types';
+import { getHistorySnapshot } from '@/features/history/historyStore';
 import { Drill } from './Drill';
 
 /** 同じ seed で、画面が出す問題と選択肢を先に知っておく */
@@ -275,5 +277,72 @@ describe('Drill（本場）', () => {
     expect(screen.getByRole('region', { name: '解説' })).toHaveTextContent(
       `${honba}本場:`
     );
+  });
+});
+
+describe('Drill（成績の保存と苦手分析）', () => {
+  it('1回解き終えると成績に反映され、消すこともできる', async () => {
+    const user = userEvent.setup();
+    const settings: DrillSettings = { ...DEFAULT_SETTINGS, count: 5 };
+    const rounds = expectedRounds(settings, 1);
+    render(<Drill rng={seededRng(1)} />);
+
+    await user.click(screen.getByRole('button', { name: '成績を見る' }));
+    expect(screen.getByText(/まだ記録がありません/)).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: '設定に戻る' }));
+
+    await user.click(screen.getByRole('radio', { name: '5問' }));
+    await user.click(screen.getByRole('button', { name: 'はじめる' }));
+    for (const [i, { question }] of rounds.entries()) {
+      await user.click(
+        screen.getByRole('button', { name: formatPayment(question.answer) })
+      );
+      await user.click(
+        screen.getByRole('button', { name: i === 4 ? '結果を見る' : '次へ' })
+      );
+    }
+    await user.click(screen.getByRole('button', { name: 'もう一度' }));
+    await user.click(screen.getByRole('button', { name: '成績を見る' }));
+
+    const levels = screen.getByRole('region', { name: 'レベルごとの成績' });
+    expect(levels).toHaveTextContent('100%');
+    expect(levels).toHaveTextContent('1回・5問');
+    expect(
+      screen.getByRole('region', { name: '直近の履歴' })
+    ).toHaveTextContent('5 / 5');
+
+    await user.click(screen.getByRole('button', { name: '成績を消す' }));
+    await user.click(screen.getByRole('button', { name: '消す' }));
+    expect(screen.getByText(/まだ記録がありません/)).toBeInTheDocument();
+  });
+});
+
+describe('Drill（成績の二重保存を防ぐ）', () => {
+  it('結果画面のまま描画し直されても、1回分は1件だけ保存する', async () => {
+    const user = userEvent.setup();
+    const settings: DrillSettings = { ...DEFAULT_SETTINGS, count: 5 };
+    const rounds = expectedRounds(settings, 2);
+    const { rerender } = render(
+      <StrictMode>
+        <Drill rng={seededRng(2)} />
+      </StrictMode>
+    );
+    await user.click(screen.getByRole('radio', { name: '5問' }));
+    await user.click(screen.getByRole('button', { name: 'はじめる' }));
+    for (const [i, { question }] of rounds.entries()) {
+      await user.click(
+        screen.getByRole('button', { name: formatPayment(question.answer) })
+      );
+      await user.click(
+        screen.getByRole('button', { name: i === 4 ? '結果を見る' : '次へ' })
+      );
+    }
+    // 親が描画し直すと onFinish が新しく作られ、保存の副作用がもう一度動く
+    rerender(
+      <StrictMode>
+        <Drill rng={seededRng(2)} />
+      </StrictMode>
+    );
+    expect(getHistorySnapshot()).toHaveLength(1);
   });
 });

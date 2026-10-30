@@ -15,6 +15,7 @@ type Props = {
   settings: DrillSettings;
   onChange: (settings: DrillSettings) => void;
   onStart: () => void;
+  onShowStats: () => void;
 };
 
 const LEVEL_OPTIONS = [
@@ -81,7 +82,7 @@ const COUNT_OPTIONS = QUESTION_COUNTS.map((n) => ({
   label: `${n}問`,
 }));
 
-export function SetupForm({ settings, onChange, onStart }: Props) {
+export function SetupForm({ settings, onChange, onStart, onShowStats }: Props) {
   const set = <K extends keyof DrillSettings>(
     key: K,
     value: DrillSettings[K]
@@ -188,6 +189,13 @@ export function SetupForm({ settings, onChange, onStart }: Props) {
         className={`mt-2 md:col-span-2 md:mx-auto md:w-80 ${PRIMARY_BUTTON}`}
       >
         はじめる
+      </button>
+      <button
+        type="button"
+        onClick={onShowStats}
+        className="text-sm text-muted underline underline-offset-4 md:col-span-2"
+      >
+        成績を見る
       </button>
     </form>
   );

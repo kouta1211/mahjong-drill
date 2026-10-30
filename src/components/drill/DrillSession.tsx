@@ -1,7 +1,7 @@
 'use client';
 
 import { AnimatePresence, motion } from 'motion/react';
-import { Fragment, useReducer, type ReactNode } from 'react';
+import { Fragment, useEffect, useReducer, useRef, type ReactNode } from 'react';
 import {
   startSession,
   type Round,
@@ -37,13 +37,19 @@ export type LevelView<Q, A> = {
   renderExplanation: (round: Round<Q, A>) => ReactNode;
   /** 結果画面の一覧に出す、問題の要約 */
   describe: (question: Q) => string;
+  /** 成績の分類（苦手分析の単位）。例: 子・ロン、役: 一気通貫 */
+  tagsOf: (round: Round<Q, A>) => string[];
 };
+
+export type FinishedAnswer = { correct: boolean; tags: string[] };
 
 type Props<Q, A> = {
   rounds: Round<Q, A>[];
   view: LevelView<Q, A>;
   settings: DrillSettings;
   onExit: () => void;
+  /** 最後の問題に答えて結果画面に移ったとき、1回だけ呼ぶ */
+  onFinish?: (answers: FinishedAnswer[]) => void;
 };
 
 export function DrillSession<Q, A>({
@@ -51,8 +57,23 @@ export function DrillSession<Q, A>({
   view,
   settings,
   onExit,
+  onFinish,
 }: Props<Q, A>) {
   const [state, dispatch] = useReducer(view.reducer, rounds, startSession);
+
+  // 結果画面に移ったら1回だけ知らせる。onFinish は親が描画し直すたびに新しく作られ、
+  // そのたびにこの副作用が動くので、目印で2回目以降を止める（二重保存の防止）
+  const finished = useRef(false);
+  useEffect(() => {
+    if (state.phase !== 'result' || finished.current) return;
+    finished.current = true;
+    onFinish?.(
+      state.history.map((h) => ({
+        correct: h.correct,
+        tags: view.tagsOf(h.round),
+      }))
+    );
+  }, [state, onFinish, view]);
 
   if (state.phase === 'result') {
     return (

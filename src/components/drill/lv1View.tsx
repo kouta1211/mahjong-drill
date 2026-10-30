@@ -6,6 +6,7 @@ import type { Question } from '@/features/drill/types';
 import type { LevelView } from './DrillSession';
 import { PaymentAnswer } from './PaymentAnswer';
 import { QuestionCard } from './QuestionCard';
+import { calcScore } from '@/features/score/calcScore';
 
 /** Lv1（早見表）: 符・翻から点数を答える */
 export const lv1View: LevelView<Question, Payment> = {
@@ -30,4 +31,9 @@ export const lv1View: LevelView<Question, Payment> = {
     `${q.isDealer ? '親' : '子'}・${q.honba ? `${q.honba}本場・` : ''}${q.isTsumo ? 'ツモ' : 'ロン'} ${
       q.fu === null ? '' : `${q.fu}符 `
     }${q.han}翻`,
+  tagsOf: ({ question: q }) => [
+    `${q.isDealer ? '親' : '子'}・${q.isTsumo ? 'ツモ' : 'ロン'}`,
+    calcScore(q).limit === null ? '満貫未満' : '満貫以上',
+    ...(q.honba ? ['本場あり'] : []),
+  ],
 };

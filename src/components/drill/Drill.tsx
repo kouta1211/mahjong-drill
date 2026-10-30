@@ -17,7 +17,9 @@ import {
   type DrillSettings,
   type Rng,
 } from '@/features/drill/types';
-import { DrillSession } from './DrillSession';
+import { StatsView } from '@/components/history/StatsView';
+import { saveRecord } from '@/features/history/historyStore';
+import { DrillSession, type FinishedAnswer } from './DrillSession';
 import { lv1View } from './lv1View';
 import { lv2View } from './lv2View';
 import { lv3View } from './lv3View';
@@ -66,6 +68,7 @@ function DrillContent({ rng = Math.random }: Props) {
   const [settings, setSettings] = useState(DEFAULT_SETTINGS);
   const [session, setSession] = useState<Session | null>(null);
   const [startError, setStartError] = useState<string | null>(null);
+  const [showStats, setShowStats] = useState(false);
 
   // 乱数を使うので、問題は描画中ではなくボタンのイベントの中で作る
   const start = () => {
@@ -79,10 +82,17 @@ function DrillContent({ rng = Math.random }: Props) {
   };
   const exit = () => setSession(null);
 
+  if (showStats) return <StatsView onBack={() => setShowStats(false)} />;
+
   if (session === null) {
     return (
       <>
-        <SetupForm settings={settings} onChange={setSettings} onStart={start} />
+        <SetupForm
+          settings={settings}
+          onChange={setSettings}
+          onStart={start}
+          onShowStats={() => setShowStats(true)}
+        />
         {startError && (
           <p role="alert" className={`mt-3 ${ERROR_TEXT}`}>
             {startError}
@@ -92,7 +102,17 @@ function DrillContent({ rng = Math.random }: Props) {
     );
   }
 
-  const common = { settings, onExit: exit };
+  // 1回分を終えたら、端末内に成績を保存する（保存できなくてもドリルは続けられる）
+  const level = session.level;
+  const onFinish = (answers: FinishedAnswer[]) => {
+    saveRecord({
+      id: `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`,
+      finishedAt: new Date().toISOString(),
+      level,
+      answers,
+    });
+  };
+  const common = { settings, onExit: exit, onFinish };
   switch (session.level) {
     case 1:
       return (
