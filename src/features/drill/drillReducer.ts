@@ -14,6 +14,8 @@ export type DrillState =
       phase: 'playing';
       settings: DrillSettings;
       questions: Question[];
+      /** questions と同じ並び。4択でないときも作っておく */
+      choices: Payment[][];
       index: number;
       history: AnsweredQuestion[];
       /** 回答済みで「次へ」を待っているとき、その回答 */
@@ -23,7 +25,7 @@ export type DrillState =
 
 export type DrillAction =
   | { type: 'updateSettings'; settings: DrillSettings }
-  | { type: 'start'; questions: Question[] }
+  | { type: 'start'; questions: Question[]; choices: Payment[][] }
   | { type: 'answer'; given: Payment }
   | { type: 'next' }
   | { type: 'restart' };
@@ -45,12 +47,18 @@ export function drillReducer(
         : state;
 
     case 'start':
-      if (state.phase !== 'setup' || action.questions.length === 0)
+      if (
+        state.phase !== 'setup' ||
+        action.questions.length === 0 ||
+        action.choices.length !== action.questions.length
+      ) {
         return state;
+      }
       return {
         phase: 'playing',
         settings: state.settings,
         questions: action.questions,
+        choices: action.choices,
         index: 0,
         history: [],
         current: null,
