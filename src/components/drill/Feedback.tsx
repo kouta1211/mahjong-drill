@@ -1,4 +1,6 @@
+import { motion } from 'motion/react';
 import type { ReactNode } from 'react';
+import { NEXT_BUTTON, PANEL } from '@/components/ui/styles';
 
 type Props = {
   correct: boolean;
@@ -19,10 +21,15 @@ export function Feedback({
   onNext,
 }: Props) {
   return (
-    <div className="flex flex-col gap-3">
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.25 }}
+      className="flex flex-col gap-3"
+    >
       <div role="status" className="text-center">
         <p
-          className={`text-2xl font-bold ${correct ? 'text-emerald-600' : 'text-rose-600'}`}
+          className={`font-display text-3xl ${correct ? 'text-correct' : 'text-wrong'}`}
         >
           {correct ? '正解！' : '不正解'}
         </p>
@@ -35,17 +42,12 @@ export function Feedback({
       {explanation !== null && (
         <section
           aria-label="解説"
-          className="rounded-xl bg-zinc-100 p-3 text-sm leading-relaxed tabular-nums dark:bg-zinc-900"
+          className={`${PANEL} text-sm leading-relaxed tabular-nums`}
         >
           {explanation}
         </section>
       )}
-      <button
-        type="button"
-        autoFocus
-        onClick={onNext}
-        className="rounded-xl bg-zinc-800 py-3 text-lg font-semibold text-white hover:bg-zinc-700 focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:outline-none dark:bg-zinc-200 dark:text-zinc-900"
-      >
+      <button type="button" autoFocus onClick={onNext} className={NEXT_BUTTON}>
         {isLast ? '結果を見る' : '次へ'}
         <kbd
           aria-hidden
@@ -54,6 +56,6 @@ export function Feedback({
           Enter
         </kbd>
       </button>
-    </div>
+    </motion.div>
   );
 }

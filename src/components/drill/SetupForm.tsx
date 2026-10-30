@@ -9,6 +9,7 @@ import {
   type WinFilter,
 } from '@/features/drill/types';
 import { RadioGroup } from './RadioGroup';
+import { PRIMARY_BUTTON } from '@/components/ui/styles';
 
 type Props = {
   settings: DrillSettings;
@@ -92,11 +93,13 @@ export function SetupForm({ settings, onChange, onStart }: Props) {
         <RadioGroup
           legend="レベル"
           name="level"
+          // 4つはスマホの1行に収まらないので 2×2 にする
+          layoutClassName="grid-cols-2 md:grid-cols-4"
           options={LEVEL_OPTIONS}
           value={settings.level}
           onChange={(v) => set('level', v)}
         />
-        <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
+        <p className="mt-2 text-sm text-muted">
           {LEVEL_DESCRIPTION[settings.level]}
         </p>
       </div>
@@ -167,7 +170,7 @@ export function SetupForm({ settings, onChange, onStart }: Props) {
       />
       <button
         type="submit"
-        className="mt-2 rounded-xl bg-emerald-600 md:col-span-2 md:mx-auto md:w-80 py-3 text-lg font-semibold text-white hover:bg-emerald-700 focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:outline-none"
+        className={`mt-2 md:col-span-2 md:mx-auto md:w-80 ${PRIMARY_BUTTON}`}
       >
         はじめる
       </button>
