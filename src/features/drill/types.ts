@@ -1,6 +1,7 @@
 import type { Payment } from '@/features/score/calcScore';
 
-export type SeatFilter = 'dealer' | 'nonDealer' | 'both';
+export type { SeatFilter } from '@/features/generate/scoreHand';
+import type { SeatFilter } from '@/features/generate/scoreHand';
 export type WinFilter = 'tsumo' | 'ron' | 'both';
 export type RangeFilter = 'belowMangan' | 'all';
 export type AnswerMode = 'choice' | 'number';
