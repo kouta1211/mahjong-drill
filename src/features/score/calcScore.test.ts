@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { calcScore, FU_VALUES, type Payment } from './calcScore';
+import {
+  calcScore,
+  calcYakumanScore,
+  FU_VALUES,
+  type Payment,
+} from './calcScore';
 import { MLEAGUE_RULES } from './rules';
 
 // 期待値は早見表から写さず、公式から手で計算している。
@@ -285,5 +290,29 @@ describe('calcScore（切り上げ満貫の範囲: 公式ルール 第6章第4�
     });
     expect(result.payment).toEqual({ kind: 'ron', total: 7700 });
     expect(result.limit).toBeNull();
+  });
+});
+
+describe('calcYakumanScore（公式ルール 第6章第6条）', () => {
+  it.each([
+    // 役満: 散家 32,000点 荘家 48,000点
+    [1, false, false, { kind: 'ron', total: 32000 }],
+    [1, true, false, { kind: 'ron', total: 48000 }],
+    [
+      1,
+      false,
+      true,
+      { kind: 'tsumoNonDealer', fromNonDealer: 8000, fromDealer: 16000 },
+    ],
+    [1, true, true, { kind: 'tsumoDealer', all: 16000 }],
+    // 2つの複合は2倍、3つは3倍
+    [2, false, false, { kind: 'ron', total: 64000 }],
+    [3, true, false, { kind: 'ron', total: 144000 }],
+  ] as const)('%i倍・親=%s・ツモ=%s', (count, isDealer, isTsumo, expected) => {
+    expect(calcYakumanScore(count, isDealer, isTsumo)).toEqual(expected);
+  });
+
+  it('役満の数が不正なら RangeError', () => {
+    expect(() => calcYakumanScore(0, false, false)).toThrow(RangeError);
   });
 });

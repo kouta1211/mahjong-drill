@@ -16,6 +16,7 @@ type Props = {
   onChange: (settings: DrillSettings) => void;
   onStart: () => void;
   onShowStats: () => void;
+  onShowCalculator: () => void;
 };
 
 const LEVEL_OPTIONS = [
@@ -82,7 +83,13 @@ const COUNT_OPTIONS = QUESTION_COUNTS.map((n) => ({
   label: `${n}問`,
 }));
 
-export function SetupForm({ settings, onChange, onStart, onShowStats }: Props) {
+export function SetupForm({
+  settings,
+  onChange,
+  onStart,
+  onShowStats,
+  onShowCalculator,
+}: Props) {
   const set = <K extends keyof DrillSettings>(
     key: K,
     value: DrillSettings[K]
@@ -190,13 +197,22 @@ export function SetupForm({ settings, onChange, onStart, onShowStats }: Props) {
       >
         はじめる
       </button>
-      <button
-        type="button"
-        onClick={onShowStats}
-        className="text-sm text-muted underline underline-offset-4 md:col-span-2"
-      >
-        成績を見る
-      </button>
+      <div className="flex justify-center gap-6 text-sm text-muted md:col-span-2">
+        <button
+          type="button"
+          onClick={onShowStats}
+          className="underline underline-offset-4"
+        >
+          成績を見る
+        </button>
+        <button
+          type="button"
+          onClick={onShowCalculator}
+          className="underline underline-offset-4"
+        >
+          点数計算機
+        </button>
+      </div>
     </form>
   );
 }
