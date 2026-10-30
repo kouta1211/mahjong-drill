@@ -17,6 +17,8 @@ export type LimitName =
   'mangan' | 'haneman' | 'baiman' | 'sanbaiman' | 'yakuman';
 
 export type ScoreResult = {
+  /** 満貫などに切り上げる前の基本点（符 × 2^(翻+2)）。5翻以上は null */
+  rawBasePoints: number | null;
   /** 支払いの元になる基本点 */
   basePoints: number;
   /** 満貫以上なら区分名、満貫未満なら null */
@@ -40,7 +42,7 @@ const LIMIT_BASE_POINTS: Record<LimitName, number> = {
 /** 30符4翻・60符3翻の基本点。切り上げ満貫の対象 */
 const KIRIAGE_BASE_POINTS = 1920;
 
-function ceil100(points: number): number {
+export function ceil100(points: number): number {
   return Math.ceil(points / 100) * 100;
 }
 
@@ -98,5 +100,10 @@ export function calcScore(
     };
   }
 
-  return { basePoints, limit, payment };
+  return {
+    rawBasePoints: han >= 5 ? null : rawBase,
+    basePoints,
+    limit,
+    payment,
+  };
 }

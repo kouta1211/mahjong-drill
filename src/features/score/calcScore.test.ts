@@ -26,13 +26,13 @@ const cases: Case[] = [
     expected: { kind: 'ron', total: 1000 },
   },
   {
-    // 110×8=880 → ×4=3520 → 3600
-    name: '子 110符1翻 ロン',
+    // 100×8=800 → ×4=3200
+    name: '子 100符1翻 ロン',
     han: 1,
-    fu: 110,
+    fu: 100,
     isDealer: false,
     isTsumo: false,
-    expected: { kind: 'ron', total: 3600 },
+    expected: { kind: 'ron', total: 3200 },
   },
   {
     // 40×8=320 → ×6=1920 → 2000
