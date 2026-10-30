@@ -2,6 +2,13 @@
 
 麻雀の点数計算を段階的に練習できるドリルアプリ（開発中）。
 
+- 本番: https://mahjong-drill-phi.vercel.app
+  - `mahjong-drill.vercel.app` は**別の人のアプリ**。`*.vercel.app` のサブドメインは全ユーザーで共有のため、このプロジェクトには `-phi` 付きのドメインが割り当てられた
+
+## 牌画像
+
+Tile images: [FluffyStuff/riichi-mahjong-tiles](https://github.com/FluffyStuff/riichi-mahjong-tiles) (CC0)（Lv2 から使用予定）
+
 ## 技術スタック
 
 - Next.js (App Router) + TypeScript（strict）
