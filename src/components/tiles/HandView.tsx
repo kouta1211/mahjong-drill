@@ -1,4 +1,7 @@
-import type { CSSProperties } from 'react';
+'use client';
+
+import { motion } from 'motion/react';
+import type { CSSProperties, ReactNode } from 'react';
 import { sortTiles } from '@/features/tiles/tile';
 import type { CalledMeld, WinningHand } from '@/features/hand/types';
 import { Tile } from './Tile';
@@ -10,7 +13,32 @@ const MELD_LABEL: Record<CalledMeld['type'], string> = {
   ankan: '暗槓',
 };
 
-function MeldView({ meld }: { meld: CalledMeld }) {
+/** 配牌の間隔（秒）。牌が左から順に置かれていく */
+const DEAL_INTERVAL = 0.025;
+/** 和了牌の前に置く間（牌何枚分か） */
+const WIN_TILE_PAUSE = 3;
+
+/** 牌を上から置く動き。order の順に少しずつ遅らせる */
+function Dealt({ order, children }: { order: number; children: ReactNode }) {
+  return (
+    <motion.span
+      className="flex items-end"
+      initial={{ opacity: 0, y: -10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: order * DEAL_INTERVAL, duration: 0.18 }}
+    >
+      {children}
+    </motion.span>
+  );
+}
+
+function MeldView({
+  meld,
+  firstOrder,
+}: {
+  meld: CalledMeld;
+  firstOrder: number;
+}) {
   return (
     <span
       role="group"
@@ -18,15 +46,16 @@ function MeldView({ meld }: { meld: CalledMeld }) {
       className="flex items-end"
     >
       {meld.tiles.map((tile, i) => (
-        <Tile
-          key={i}
-          tile={tile}
-          // 鳴いた牌は1枚目を横向きに置く（誰から鳴いたかは問わない）
-          sideways={meld.type !== 'ankan' && i === 0}
-          faceDown={
-            meld.type === 'ankan' && (i === 0 || i === meld.tiles.length - 1)
-          }
-        />
+        <Dealt key={i} order={firstOrder + i}>
+          <Tile
+            tile={tile}
+            // 鳴いた牌は1枚目を横向きに置く（誰から鳴いたかは問わない）
+            sideways={meld.type !== 'ankan' && i === 0}
+            faceDown={
+              meld.type === 'ankan' && (i === 0 || i === meld.tiles.length - 1)
+            }
+          />
+        </Dealt>
       ))}
     </span>
   );
@@ -65,6 +94,7 @@ export function HandView({ hand }: { hand: WinningHand }) {
   const style = {
     '--tw': `min(calc(100cqw / ${tileWidthDivisor(hand)}), 3rem)`,
   } as CSSProperties;
+  const winOrder = hand.concealed.length + WIN_TILE_PAUSE;
   return (
     <div className="@container w-full">
       <div
@@ -73,7 +103,9 @@ export function HandView({ hand }: { hand: WinningHand }) {
       >
         <span role="group" aria-label="手牌" className="flex items-end">
           {sortTiles(hand.concealed).map((tile, i) => (
-            <Tile key={i} tile={tile} />
+            <Dealt key={i} order={i}>
+              <Tile tile={tile} />
+            </Dealt>
           ))}
         </span>
         <span
@@ -81,12 +113,22 @@ export function HandView({ hand }: { hand: WinningHand }) {
           aria-label={hand.isTsumo ? 'ツモした牌' : 'ロンした牌'}
           className="flex flex-col items-center"
         >
-          <Tile tile={hand.winTile} highlight />
+          <Dealt order={winOrder}>
+            <Tile tile={hand.winTile} highlight />
+          </Dealt>
         </span>
         {hand.melds.length > 0 && (
           <span className="flex items-end gap-[calc(var(--tw)*0.2)]">
             {hand.melds.map((meld, i) => (
-              <MeldView key={i} meld={meld} />
+              <MeldView
+                key={i}
+                meld={meld}
+                firstOrder={
+                  winOrder +
+                  1 +
+                  hand.melds.slice(0, i).reduce((n, m) => n + m.tiles.length, 0)
+                }
+              />
             ))}
           </span>
         )}

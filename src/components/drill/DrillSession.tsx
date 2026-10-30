@@ -1,5 +1,6 @@
 'use client';
 
+import { AnimatePresence, motion } from 'motion/react';
 import { Fragment, useReducer, type ReactNode } from 'react';
 import {
   startSession,
@@ -73,48 +74,57 @@ export function DrillSession<Q, A>({
   const onAnswer = (answer: A) => dispatch({ type: 'answer', given: answer });
 
   return (
-    // PC では左に問題、右に回答と解説を並べる
-    <div className="flex flex-col gap-5 lg:grid lg:grid-cols-2 lg:items-start lg:gap-8">
-      <div className="lg:sticky lg:top-8">
-        {view.renderQuestion(
-          round.question,
-          state.index + 1,
-          state.rounds.length
-        )}
-      </div>
-      <div className="flex flex-col gap-5">
-        {settings.answerMode === 'choice' ? (
-          <ChoiceAnswer
-            choices={round.choices}
-            answer={round.answer}
-            given={given}
-            format={view.format}
-            isSame={view.isSame}
-            onAnswer={onAnswer}
-            layout={view.choiceLayout}
-          />
-        ) : (
-          // 問題ごとに入力を空に戻す
-          <Fragment key={state.index}>
-            {view.renderFreeAnswer(round, {
-              disabled: given !== null,
-              onAnswer,
-            })}
-          </Fragment>
-        )}
-        {state.current && (
-          <Feedback
-            correct={state.current.correct}
-            givenText={view.format(state.current.given)}
-            answerText={view.format(round.answer)}
-            explanation={
-              settings.showExplanation ? view.renderExplanation(round) : null
-            }
-            isLast={state.index + 1 === state.rounds.length}
-            onNext={() => dispatch({ type: 'next' })}
-          />
-        )}
-      </div>
-    </div>
+    // 問題ごとに横へすべらせて入れ替える。PC では左に問題、右に回答と解説を並べる
+    <AnimatePresence mode="wait" initial={false}>
+      <motion.div
+        key={state.index}
+        initial={{ opacity: 0, x: 32 }}
+        animate={{ opacity: 1, x: 0 }}
+        exit={{ opacity: 0, x: -32 }}
+        transition={{ duration: 0.2, ease: 'easeOut' }}
+        className="flex flex-col gap-5 lg:grid lg:grid-cols-2 lg:items-start lg:gap-8"
+      >
+        <div className="lg:sticky lg:top-8">
+          {view.renderQuestion(
+            round.question,
+            state.index + 1,
+            state.rounds.length
+          )}
+        </div>
+        <div className="flex flex-col gap-5">
+          {settings.answerMode === 'choice' ? (
+            <ChoiceAnswer
+              choices={round.choices}
+              answer={round.answer}
+              given={given}
+              format={view.format}
+              isSame={view.isSame}
+              onAnswer={onAnswer}
+              layout={view.choiceLayout}
+            />
+          ) : (
+            // 問題ごとに入力を空に戻す
+            <Fragment key={state.index}>
+              {view.renderFreeAnswer(round, {
+                disabled: given !== null,
+                onAnswer,
+              })}
+            </Fragment>
+          )}
+          {state.current && (
+            <Feedback
+              correct={state.current.correct}
+              givenText={view.format(state.current.given)}
+              answerText={view.format(round.answer)}
+              explanation={
+                settings.showExplanation ? view.renderExplanation(round) : null
+              }
+              isLast={state.index + 1 === state.rounds.length}
+              onNext={() => dispatch({ type: 'next' })}
+            />
+          )}
+        </div>
+      </motion.div>
+    </AnimatePresence>
   );
 }

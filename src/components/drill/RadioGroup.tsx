@@ -1,3 +1,5 @@
+import { LEGEND, TOGGLE_CHIP } from '@/components/ui/styles';
+
 type Option<T extends string | number> = { value: T; label: string };
 
 type Props<T extends string | number> = {
@@ -6,6 +8,8 @@ type Props<T extends string | number> = {
   options: readonly Option<T>[];
   value: T;
   onChange: (value: T) => void;
+  /** 並べ方。省略すると、選択肢を横一列に同じ幅で並べる */
+  layoutClassName?: string;
 };
 
 /** ボタン風に並べたラジオボタンの組 */
@@ -15,18 +19,14 @@ export function RadioGroup<T extends string | number>({
   options,
   value,
   onChange,
+  layoutClassName = 'grid-flow-col auto-cols-fr',
 }: Props<T>) {
   return (
     <fieldset className="flex flex-col gap-2">
-      <legend className="mb-2 text-sm font-medium text-zinc-600 dark:text-zinc-400">
-        {legend}
-      </legend>
-      <div className="grid grid-flow-col auto-cols-fr gap-2">
+      <legend className={LEGEND}>{legend}</legend>
+      <div className={`grid gap-2 ${layoutClassName}`}>
         {options.map((option) => (
-          <label
-            key={option.value}
-            className="cursor-pointer rounded-lg border border-zinc-300 px-2 py-2 text-center text-sm transition-colors has-checked:border-emerald-600 has-checked:bg-emerald-600 has-checked:text-white has-focus-visible:ring-2 has-focus-visible:ring-emerald-400 dark:border-zinc-700"
-          >
+          <label key={option.value} className={TOGGLE_CHIP}>
             <input
               type="radio"
               name={name}

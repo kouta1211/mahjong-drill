@@ -3,7 +3,8 @@ import type { Tile as TileData } from '@/features/tiles/tile';
 import { Tile } from './Tile';
 
 // CSS 変数は CSSProperties の型にないため、ここだけ型を広げる
-const SMALL_TILE = { '--tw': '1.75rem' } as CSSProperties;
+// 手牌の牌と同じくらいの大きさ（スマホでは画面幅に合わせて小さくする）
+const SMALL_TILE = { '--tw': 'clamp(1.25rem, 6vw, 1.75rem)' } as CSSProperties;
 
 function IndicatorRow({ label, tiles }: { label: string; tiles: TileData[] }) {
   return (

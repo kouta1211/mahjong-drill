@@ -3,6 +3,12 @@
 import { useState } from 'react';
 import { toYakuAnswer, type YakuAnswer } from '@/features/drill/yakuAnswer';
 import { hanOf, YAKU, YAKU_IDS, type YakuId } from '@/features/yaku/yakuList';
+import {
+  ERROR_TEXT,
+  LEGEND,
+  PRIMARY_BUTTON,
+  TOGGLE_CHIP,
+} from '@/components/ui/styles';
 
 type Props = {
   /** 門前かどうかで、選べる役と翻数が変わる */
@@ -46,15 +52,12 @@ export function YakuPicker({ menzen, disabled, onAnswer }: Props) {
     >
       {hanList.map((han) => (
         <fieldset key={han} disabled={disabled}>
-          <legend className="mb-2 text-sm font-medium text-zinc-600 dark:text-zinc-400">
+          <legend className={LEGEND}>
             {han}翻{!menzen && '（副露）'}
           </legend>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
             {(groups.get(han) ?? []).map((id) => (
-              <label
-                key={id}
-                className="cursor-pointer rounded-lg border border-zinc-300 px-2 py-2 text-center text-sm transition-colors has-checked:border-emerald-600 has-checked:bg-emerald-600 has-checked:text-white has-focus-visible:ring-2 has-focus-visible:ring-emerald-400 has-disabled:cursor-default has-disabled:opacity-60 dark:border-zinc-700"
-              >
+              <label key={id} className={TOGGLE_CHIP}>
                 <input
                   type="checkbox"
                   checked={selected.includes(id)}
@@ -68,15 +71,11 @@ export function YakuPicker({ menzen, disabled, onAnswer }: Props) {
         </fieldset>
       ))}
       {error && (
-        <p role="alert" className="text-sm text-rose-600 dark:text-rose-400">
+        <p role="alert" className={ERROR_TEXT}>
           {error}
         </p>
       )}
-      <button
-        type="submit"
-        disabled={disabled}
-        className="rounded-xl bg-emerald-600 py-3 text-lg font-semibold text-white hover:bg-emerald-700 focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:outline-none disabled:opacity-50"
-      >
+      <button type="submit" disabled={disabled} className={PRIMARY_BUTTON}>
         答える
         {selected.length > 0 && `（${toYakuAnswer(selected, menzen).han}翻）`}
       </button>

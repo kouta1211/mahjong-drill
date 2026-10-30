@@ -1,6 +1,8 @@
 'use client';
 
+import { motion, type TargetAndTransition } from 'motion/react';
 import { useEffect } from 'react';
+
 type Props<A> = {
   choices: A[];
   answer: A;
@@ -13,25 +15,38 @@ type Props<A> = {
   layout?: 'grid' | 'list';
 };
 
-function choiceClass<A>(
+type ChoiceState = 'open' | 'correct' | 'wrong' | 'other';
+
+function choiceState<A>(
   choice: A,
   answer: A,
   given: A | null,
   isSame: (a: A, b: A) => boolean
-) {
-  const base =
-    'relative rounded-xl border-2 font-semibold tabular-nums transition-colors focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:outline-none';
-  if (given === null) {
-    return `${base} border-zinc-300 hover:border-emerald-600 hover:bg-emerald-50 dark:border-zinc-700 dark:hover:bg-emerald-950`;
-  }
-  if (isSame(choice, answer)) {
-    return `${base} border-emerald-600 bg-emerald-600 text-white`;
-  }
-  if (isSame(choice, given)) {
-    return `${base} border-rose-500 bg-rose-50 text-rose-700 dark:bg-rose-950 dark:text-rose-300`;
-  }
-  return `${base} border-zinc-200 text-zinc-400 dark:border-zinc-800`;
+): ChoiceState {
+  if (given === null) return 'open';
+  if (isSame(choice, answer)) return 'correct';
+  if (isSame(choice, given)) return 'wrong';
+  return 'other';
 }
+
+// 象牙色の牌のような見た目。下の縁を厚くして立体に見せる
+const CHOICE_BASE =
+  'relative rounded-xl border-2 border-b-[6px] font-semibold tabular-nums transition-colors focus-visible:ring-2 focus-visible:ring-felt-light focus-visible:outline-none';
+
+const CHOICE_CLASS: Record<ChoiceState, string> = {
+  open: 'border-line border-b-ivory-edge bg-ivory text-ink hover:border-felt-light',
+  correct: 'border-correct-strong bg-correct-strong text-on-dark',
+  wrong: 'border-wrong bg-wrong/10 text-wrong',
+  other: 'border-line border-b-ivory-edge bg-ivory text-ink opacity-45',
+};
+
+/** 答えたあとの反応。正解は軽く弾み、選んだ誤答は小さく揺れる */
+const CHOICE_MOTION: Record<ChoiceState, TargetAndTransition> = {
+  open: {},
+  correct: { scale: [1, 1.06, 1], transition: { duration: 0.3 } },
+  wrong: { x: [0, -7, 7, -4, 4, 0], transition: { duration: 0.35 } },
+  other: {},
+};
 
 /** 入力欄で打った数字や、修飾キー付きの操作は選択肢として扱わない */
 function isPlainKey(e: KeyboardEvent): boolean {
@@ -75,25 +90,32 @@ export function ChoiceAnswer<A>({
           : 'flex flex-col gap-2'
       }
     >
-      {choices.map((choice, i) => (
-        <button
-          key={format(choice)}
-          type="button"
-          disabled={given !== null}
-          onClick={() => onAnswer(choice)}
-          className={`${choiceClass(choice, answer, given, isSame)} ${
-            layout === 'grid' ? 'py-4 text-xl' : 'px-8 py-3 text-left text-base'
-          }`}
-        >
-          <kbd
-            aria-hidden
-            className="absolute top-1.5 left-2 hidden font-sans text-xs font-normal opacity-60 pointer-fine:inline"
+      {choices.map((choice, i) => {
+        const state = choiceState(choice, answer, given, isSame);
+        return (
+          <motion.button
+            key={format(choice)}
+            type="button"
+            disabled={given !== null}
+            onClick={() => onAnswer(choice)}
+            animate={CHOICE_MOTION[state]}
+            whileTap={given === null ? { scale: 0.97 } : undefined}
+            className={`${CHOICE_BASE} ${CHOICE_CLASS[state]} ${
+              layout === 'grid'
+                ? 'py-4 text-xl'
+                : 'px-8 py-3 text-left text-base'
+            }`}
           >
-            {i + 1}
-          </kbd>
-          {format(choice)}
-        </button>
-      ))}
+            <kbd
+              aria-hidden
+              className="absolute top-1.5 left-2 hidden font-sans text-xs font-normal opacity-60 pointer-fine:inline"
+            >
+              {i + 1}
+            </kbd>
+            {format(choice)}
+          </motion.button>
+        );
+      })}
     </div>
   );
 }

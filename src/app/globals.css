@@ -1,26 +1,103 @@
 @import 'tailwindcss';
 
+/*
+ * デザイントークン（雀卓風）。色はここだけで決め、部品では bg-felt / text-ink などの名前で使う。
+ * ダークモードは OS の設定に合わせて切り替える。
+ */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --paper: #f4efe4;
+  --ink: #2b2420;
+  --muted: #6b6259;
+  --line: #e0d6c2;
+  --ivory: #fbf7ee;
+  --ivory-edge: #d4c7ab;
+  --felt: #1f5e3a;
+  --felt-deep: #154a2c;
+  --felt-light: #2d7a4c;
+  --wood: #7a4a24;
+  --wood-dark: #4e2d14;
+  --wood-light: #a8703f;
+  --correct: #2f855a;
+  --wrong: #c0392b;
+  --gold: #e9b949;
+  /* 卓・木・正解の色の上に乗る文字。ダークモードでも明るいまま（切り替えない） */
+  --on-dark: #fbf7ee;
+  /* 正解のボタンの背景。--correct（文字用）はダークモードで明るくなるので分ける */
+  --correct-strong: #2f855a;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --paper: #1b1714;
+    --ink: #efe8db;
+    --muted: #b3a998;
+    --line: #3a322b;
+    --ivory: #29231e;
+    --ivory-edge: #120f0d;
+    --felt: #1a4f31;
+    --felt-deep: #113823;
+    --felt-light: #246640;
+    --correct: #48bb78;
+    --wrong: #f07167;
   }
 }
 
+@theme inline {
+  --color-paper: var(--paper);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-ivory: var(--ivory);
+  --color-ivory-edge: var(--ivory-edge);
+  --color-felt: var(--felt);
+  --color-felt-deep: var(--felt-deep);
+  --color-felt-light: var(--felt-light);
+  --color-wood: var(--wood);
+  --color-wood-dark: var(--wood-dark);
+  --color-wood-light: var(--wood-light);
+  --color-correct: var(--correct);
+  --color-wrong: var(--wrong);
+  --color-gold: var(--gold);
+  --color-on-dark: var(--on-dark);
+  --color-correct-strong: var(--correct-strong);
+  --font-sans:
+    var(--font-geist-sans), 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+  --font-mono: var(--font-geist-mono);
+  --font-display: var(--font-shippori), 'Hiragino Mincho ProN', serif;
+}
+
+/* 緑のフェルト。中央が明るく、縁に向かって沈む */
+@utility felt {
+  background-color: var(--felt);
+  background-image:
+    radial-gradient(ellipse at center, var(--felt-light) 0%, transparent 70%),
+    repeating-linear-gradient(
+      45deg,
+      rgb(0 0 0 / 0.03) 0 2px,
+      transparent 2px 4px
+    );
+}
+
+/* 卓の縁の木目 */
+@utility wood {
+  background-color: var(--wood);
+  background-image:
+    repeating-linear-gradient(
+      90deg,
+      rgb(255 255 255 / 0.05) 0 3px,
+      transparent 3px 11px,
+      rgb(0 0 0 / 0.07) 11px 13px,
+      transparent 13px 23px
+    ),
+    linear-gradient(
+      180deg,
+      var(--wood-light),
+      var(--wood) 40%,
+      var(--wood-dark)
+    );
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--paper);
+  color: var(--ink);
 }
