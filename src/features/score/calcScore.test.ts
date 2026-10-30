@@ -273,3 +273,17 @@ describe('calcScore（早見表の範囲を超える符）', () => {
     ).toEqual({ kind: 'ron', total: 4200 });
   });
 });
+
+describe('calcScore（切り上げ満貫の範囲: 公式ルール 第6章第4条・第6条）', () => {
+  it('120符2翻は基本点が 1920 でも切り上げ満貫にならない（7700）', () => {
+    // 120×16=1920 → ×4=7680 → 7700。切り上げ満貫は 30符4翻・60符3翻だけ
+    const result = calcScore({
+      han: 2,
+      fu: 120,
+      isDealer: false,
+      isTsumo: false,
+    });
+    expect(result.payment).toEqual({ kind: 'ron', total: 7700 });
+    expect(result.limit).toBeNull();
+  });
+});

@@ -48,3 +48,19 @@ describe('analyzeHand（出題に使わない手）', () => {
     expect(analyzeHand(hand)).toEqual({ ok: false, reason });
   });
 });
+
+describe('analyzeHand（九蓮宝燈と暗槓）', () => {
+  it('暗槓を含む九蓮宝燈の形は、公式で未確認なので出題に使わない', () => {
+    // 1萬の暗槓 ＋ 234567999萬 8萬、8萬ツモ
+    const hand = testHand('2345679998m', '8m', {
+      isTsumo: true,
+      melds: [['ankan', '1111m']],
+    });
+    expect(analyzeHand(hand)).toEqual({ ok: false, reason: 'unconfirmedRule' });
+  });
+
+  it('暗槓のない九蓮宝燈は役満', () => {
+    const hand = testHand('1112345678999m', '5m', { isTsumo: true });
+    expect(analyzeHand(hand)).toEqual({ ok: false, reason: 'yakuman' });
+  });
+});

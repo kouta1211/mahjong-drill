@@ -2,7 +2,8 @@ import { calcFu, type FuResult } from '@/features/hand/calcFu';
 import { interpretHand } from '@/features/hand/interpret';
 import type { Interpretation, WinningHand } from '@/features/hand/types';
 import { calcScore, type Payment } from '@/features/score/calcScore';
-import { evaluateYaku, type YakuHit } from './evaluateYaku';
+import { isHonor, suitOf } from '@/features/tiles/tile';
+import { evaluateYaku, isChuurenShape, type YakuHit } from './evaluateYaku';
 
 export type HandAnalysis =
   | {
@@ -14,7 +15,13 @@ export type HandAnalysis =
     }
   | {
       ok: false;
-      reason: 'notWinning' | 'shanponRon' | 'yakuman' | 'noYaku' | 'ambiguous';
+      reason:
+        | 'notWinning'
+        | 'shanponRon'
+        | 'unconfirmedRule'
+        | 'yakuman'
+        | 'noYaku'
+        | 'ambiguous';
     };
 
 /** 子の支払いの合計。解釈どうしの点数を比べるのに使う（親でも順位は変わらない） */
@@ -39,7 +46,8 @@ const yakuKey = (yaku: YakuHit[]) =>
  * 和了手を解析する。解釈が複数あるときは、最も高い点になる解釈を採る
  * （Mリーグ公式ルール 第6章第5条）。次の手は出題に使わないので ok: false を返す。
  * - 双碰のロン: ロンで完成した刻子の扱いを公式で確かめられていない（docs/requirements.md 6章）
- * - 役満: Lv3 までは扱わない
+ * - 暗槓を含む九蓮宝燈の形: 役満になるかを公式で確かめられていない（docs/requirements.md 6章）
+ * - 役満: 出題しない
  * - 最高点の解釈が複数あり、役の組み合わせが違う手: 正解が1つに決まらない
  */
 export function analyzeHand(hand: WinningHand): HandAnalysis {
@@ -47,6 +55,19 @@ export function analyzeHand(hand: WinningHand): HandAnalysis {
   if (interpretations.length === 0) return { ok: false, reason: 'notWinning' };
   if (!hand.isTsumo && interpretations.some((it) => it.wait === 'shanpon')) {
     return { ok: false, reason: 'shanponRon' };
+  }
+  const kinds = [
+    ...hand.concealed,
+    hand.winTile,
+    ...hand.melds.flatMap((m) => m.tiles),
+  ].map((t) => t.kind);
+  const oneSuit = new Set(kinds.map(suitOf)).size === 1 && !kinds.some(isHonor);
+  if (
+    hand.melds.some((m) => m.type === 'ankan') &&
+    oneSuit &&
+    isChuurenShape(kinds)
+  ) {
+    return { ok: false, reason: 'unconfirmedRule' };
   }
 
   const scored = [];
