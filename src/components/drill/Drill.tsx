@@ -17,6 +17,7 @@ import {
   type DrillSettings,
   type Rng,
 } from '@/features/drill/types';
+import { Calculator } from '@/components/calculator/Calculator';
 import { StatsView } from '@/components/history/StatsView';
 import { saveRecord } from '@/features/history/historyStore';
 import { DrillSession, type FinishedAnswer } from './DrillSession';
@@ -68,7 +69,9 @@ function DrillContent({ rng = Math.random }: Props) {
   const [settings, setSettings] = useState(DEFAULT_SETTINGS);
   const [session, setSession] = useState<Session | null>(null);
   const [startError, setStartError] = useState<string | null>(null);
-  const [showStats, setShowStats] = useState(false);
+  const [screen, setScreen] = useState<'setup' | 'stats' | 'calculator'>(
+    'setup'
+  );
 
   // 乱数を使うので、問題は描画中ではなくボタンのイベントの中で作る
   const start = () => {
@@ -82,7 +85,9 @@ function DrillContent({ rng = Math.random }: Props) {
   };
   const exit = () => setSession(null);
 
-  if (showStats) return <StatsView onBack={() => setShowStats(false)} />;
+  const back = () => setScreen('setup');
+  if (screen === 'stats') return <StatsView onBack={back} />;
+  if (screen === 'calculator') return <Calculator onBack={back} />;
 
   if (session === null) {
     return (
@@ -91,7 +96,8 @@ function DrillContent({ rng = Math.random }: Props) {
           settings={settings}
           onChange={setSettings}
           onStart={start}
-          onShowStats={() => setShowStats(true)}
+          onShowStats={() => setScreen('stats')}
+          onShowCalculator={() => setScreen('calculator')}
         />
         {startError && (
           <p role="alert" className={`mt-3 ${ERROR_TEXT}`}>
