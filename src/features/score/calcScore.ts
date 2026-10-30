@@ -1,0 +1,102 @@
+import { MLEAGUE_RULES, type ScoreRules } from './rules';
+
+export type ScoreInput = {
+  han: number;
+  /** 5翻以上では点数に影響しないため null でよい */
+  fu: number | null;
+  isDealer: boolean;
+  isTsumo: boolean;
+};
+
+export type Payment =
+  | { kind: 'ron'; total: number }
+  | { kind: 'tsumoNonDealer'; fromNonDealer: number; fromDealer: number }
+  | { kind: 'tsumoDealer'; all: number };
+
+export type LimitName =
+  'mangan' | 'haneman' | 'baiman' | 'sanbaiman' | 'yakuman';
+
+export type ScoreResult = {
+  /** 支払いの元になる基本点 */
+  basePoints: number;
+  /** 満貫以上なら区分名、満貫未満なら null */
+  limit: LimitName | null;
+  payment: Payment;
+};
+
+/** 符として現れうる値（25符は七対子のみ） */
+export const FU_VALUES = [
+  20, 25, 30, 40, 50, 60, 70, 80, 90, 100, 110,
+] as const;
+
+const LIMIT_BASE_POINTS: Record<LimitName, number> = {
+  mangan: 2000,
+  haneman: 3000,
+  baiman: 4000,
+  sanbaiman: 6000,
+  yakuman: 8000,
+};
+
+/** 30符4翻・60符3翻の基本点。切り上げ満貫の対象 */
+const KIRIAGE_BASE_POINTS = 1920;
+
+function ceil100(points: number): number {
+  return Math.ceil(points / 100) * 100;
+}
+
+function limitOf(
+  han: number,
+  basePoints: number,
+  rules: ScoreRules
+): LimitName | null {
+  if (han >= 13) return rules.kazoeYakuman ? 'yakuman' : 'sanbaiman';
+  if (han >= 11) return 'sanbaiman';
+  if (han >= 8) return 'baiman';
+  if (han >= 6) return 'haneman';
+  if (han === 5 || basePoints >= LIMIT_BASE_POINTS.mangan) return 'mangan';
+  if (rules.kiriageMangan && basePoints === KIRIAGE_BASE_POINTS) {
+    return 'mangan';
+  }
+  return null;
+}
+
+function validate({ han, fu }: ScoreInput): void {
+  if (!Number.isInteger(han) || han < 1) {
+    throw new RangeError(`翻は1以上の整数で指定してください: ${han}`);
+  }
+  if (han >= 5) return;
+  if (fu === null) {
+    throw new RangeError(`4翻以下では符が必要です: ${han}翻`);
+  }
+  if (!(FU_VALUES as readonly number[]).includes(fu)) {
+    throw new RangeError(`符の値が不正です: ${fu}`);
+  }
+}
+
+/** 符・翻・親子・ツモロンから、支払う点数を求める */
+export function calcScore(
+  input: ScoreInput,
+  rules: ScoreRules = MLEAGUE_RULES
+): ScoreResult {
+  validate(input);
+  const { han, fu, isDealer, isTsumo } = input;
+
+  const rawBase = han >= 5 || fu === null ? 0 : fu * 2 ** (han + 2);
+  const limit = limitOf(han, rawBase, rules);
+  const basePoints = limit === null ? rawBase : LIMIT_BASE_POINTS[limit];
+
+  let payment: Payment;
+  if (!isTsumo) {
+    payment = { kind: 'ron', total: ceil100(basePoints * (isDealer ? 6 : 4)) };
+  } else if (isDealer) {
+    payment = { kind: 'tsumoDealer', all: ceil100(basePoints * 2) };
+  } else {
+    payment = {
+      kind: 'tsumoNonDealer',
+      fromNonDealer: ceil100(basePoints),
+      fromDealer: ceil100(basePoints * 2),
+    };
+  }
+
+  return { basePoints, limit, payment };
+}
