@@ -8,6 +8,10 @@ import {
   generateYakuHand,
   type GeneratedYakuHand,
 } from '@/features/generate/yakuHand';
+import {
+  generateScoreHand,
+  type GeneratedScoreHand,
+} from '@/features/generate/scoreHand';
 import { isMenzen } from '@/features/hand/types';
 import type { Round } from './session';
 import type { DrillSettings, Question, Rng } from './types';
@@ -21,6 +25,9 @@ import { shuffle } from '@/lib/random';
 export type Lv1Round = Round<Question, Payment>;
 export type Lv2Round = Round<GeneratedHand, number>;
 export type Lv3Round = Round<GeneratedYakuHand, YakuAnswer>;
+/** Lv4 の問題。scoreQuestion は、同じ点数を Lv1 の問題の形（翻・符・親子・ツモロン）で表したもの */
+export type Lv4Question = GeneratedScoreHand & { scoreQuestion: Question };
+export type Lv4Round = Round<Lv4Question, Payment>;
 
 /** Lv1（早見表）の問題を作る。乱数を使うので、描画中ではなくイベントの中で呼ぶこと */
 export function createLv1Rounds(settings: DrillSettings, rng: Rng): Lv1Round[] {
@@ -99,6 +106,33 @@ export function createLv3Rounds(settings: DrillSettings, rng: Rng): Lv3Round[] {
       question: generated,
       answer,
       choices: generateYakuChoices(answer, menzen, rng),
+    };
+  });
+}
+
+/** Lv4（総合）の問題を作る。乱数を使うので、描画中ではなくイベントの中で呼ぶこと */
+export function createLv4Rounds(settings: DrillSettings, rng: Rng): Lv4Round[] {
+  const filters = {
+    melds: settings.melds,
+    win: settings.win,
+    includeChiitoi: settings.includeChiitoi,
+    seat: settings.seat,
+  };
+  return Array.from({ length: settings.count }, () => {
+    const generated = generateScoreHand(filters, rng);
+    const answer = generated.score.payment;
+    // 4択の誤答と点数の解説は、Lv1 の仕組みをそのまま使う
+    const scoreQuestion: Question = {
+      han: generated.han,
+      fu: generated.han >= 5 ? null : generated.analysis.fu.fu,
+      isDealer: generated.isDealer,
+      isTsumo: generated.hand.isTsumo,
+      answer,
+    };
+    return {
+      question: { ...generated, scoreQuestion },
+      answer,
+      choices: generateChoices(scoreQuestion, rng),
     };
   });
 }

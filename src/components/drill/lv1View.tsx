@@ -1,43 +1,11 @@
 import type { Payment } from '@/features/score/calcScore';
 import { explain } from '@/features/drill/explain';
-import {
-  formatPayment,
-  isSamePayment,
-  parsePoints,
-} from '@/features/drill/payment';
+import { formatPayment, isSamePayment } from '@/features/drill/payment';
 import { createSessionReducer } from '@/features/drill/session';
 import type { Question } from '@/features/drill/types';
 import type { LevelView } from './DrillSession';
-import { NumberAnswer, type NumberField } from './NumberAnswer';
+import { PaymentAnswer } from './PaymentAnswer';
 import { QuestionCard } from './QuestionCard';
-
-const PAYMENT_FIELDS: Record<Payment['kind'], NumberField[]> = {
-  ron: [{ key: 'total', label: 'ロンの点数' }],
-  tsumoDealer: [{ key: 'all', label: '子1人あたりの支払い', suffix: 'オール' }],
-  tsumoNonDealer: [
-    { key: 'fromNonDealer', label: '子の支払い' },
-    { key: 'fromDealer', label: '親の支払い' },
-  ],
-};
-
-function toPayment(
-  kind: Payment['kind'],
-  values: Record<string, number>
-): Payment {
-  const get = (key: string) => values[key] ?? 0;
-  switch (kind) {
-    case 'ron':
-      return { kind, total: get('total') };
-    case 'tsumoDealer':
-      return { kind, all: get('all') };
-    case 'tsumoNonDealer':
-      return {
-        kind,
-        fromNonDealer: get('fromNonDealer'),
-        fromDealer: get('fromDealer'),
-      };
-  }
-}
 
 /** Lv1（早見表）: 符・翻から点数を答える */
 export const lv1View: LevelView<Question, Payment> = {
@@ -49,12 +17,7 @@ export const lv1View: LevelView<Question, Payment> = {
     <QuestionCard question={question} number={number} total={total} />
   ),
   renderFreeAnswer: (round, props) => (
-    <NumberAnswer
-      fields={PAYMENT_FIELDS[round.answer.kind]}
-      parse={parsePoints}
-      toAnswer={(values) => toPayment(round.answer.kind, values)}
-      {...props}
-    />
+    <PaymentAnswer kind={round.answer.kind} {...props} />
   ),
   renderExplanation: (round) => (
     <ol className="list-decimal pl-5">
