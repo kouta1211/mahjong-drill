@@ -26,7 +26,7 @@ export type ScoreResult = {
   payment: Payment;
 };
 
-/** 符として現れうる値（25符は七対子のみ） */
+/** 早見表に載っている符（25符は七対子のみ）。Lv1 の出題範囲に使う */
 export const FU_VALUES = [
   20, 25, 30, 40, 50, 60, 70, 80, 90, 100, 110,
 ] as const;
@@ -70,7 +70,10 @@ function validate({ han, fu }: ScoreInput): void {
   if (fu === null) {
     throw new RangeError(`4翻以下では符が必要です: ${han}翻`);
   }
-  if (!(FU_VALUES as readonly number[]).includes(fu)) {
+  // 早見表（FU_VALUES）は 110符までだが、么九牌の暗槓が重なる手などはそれを超える
+  const validFu =
+    fu === 25 || (Number.isInteger(fu) && fu >= 20 && fu % 10 === 0);
+  if (!validFu) {
     throw new RangeError(`符の値が不正です: ${fu}`);
   }
 }
