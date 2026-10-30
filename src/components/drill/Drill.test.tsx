@@ -240,3 +240,40 @@ describe('Drill（Lv4 総合）', () => {
     );
   });
 });
+
+describe('Drill（本場）', () => {
+  it('本場を付けると、本場のバッジが出て、正解に本場が含まれる', async () => {
+    const user = userEvent.setup();
+    const settings: DrillSettings = {
+      ...DEFAULT_SETTINGS,
+      level: 4,
+      count: 5,
+      honba: true,
+    };
+    // 本場が 1 以上になる seed を使う
+    const seed = [11, 12, 13, 14, 15].find(
+      (s) =>
+        (createLv4Rounds(settings, seededRng(s))[0]?.question.scoreQuestion
+          .honba ?? 0) > 0
+    );
+    if (seed === undefined) throw new Error('本場のある問題が作れませんでした');
+    const [round] = createLv4Rounds(settings, seededRng(seed));
+    if (!round) throw new Error('問題が作れませんでした');
+    render(<Drill rng={seededRng(seed)} />);
+
+    await user.click(screen.getByRole('radio', { name: 'Lv4 総合' }));
+    await user.click(screen.getByRole('radio', { name: '5問' }));
+    await user.click(screen.getByRole('radio', { name: '付ける' }));
+    await user.click(screen.getByRole('button', { name: 'はじめる' }));
+
+    const honba = round.question.scoreQuestion.honba ?? 0;
+    expect(screen.getByText(`${honba}本場`)).toBeInTheDocument();
+    await user.click(
+      screen.getByRole('button', { name: formatPayment(round.answer) })
+    );
+    expect(screen.getByRole('status')).toHaveTextContent('正解！');
+    expect(screen.getByRole('region', { name: '解説' })).toHaveTextContent(
+      `${honba}本場:`
+    );
+  });
+});

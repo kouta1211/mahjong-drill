@@ -13,6 +13,8 @@ type Props = {
   total: number;
   /** 親か子かを見せる（Lv4）。省略すると出さない */
   isDealer?: boolean;
+  /** 本場（Lv4）。0 や省略なら出さない */
+  honba?: number;
   /** 手牌の下に出すもの（Lv4 のドラ表示牌） */
   children?: ReactNode;
 };
@@ -26,6 +28,7 @@ export function HandQuestionCard({
   number,
   total,
   isDealer,
+  honba = 0,
   children,
 }: Props) {
   return (
@@ -38,6 +41,7 @@ export function HandQuestionCard({
         <Badge>{windName(hand.roundWind)}場</Badge>
         <Badge>自風 {windName(hand.seatWind)}</Badge>
         <Badge>{hand.isTsumo ? 'ツモ' : 'ロン'}</Badge>
+        {honba > 0 && <Badge>{honba}本場</Badge>}
         {hand.riichi && <Badge>リーチ</Badge>}
       </p>
       <div className="mt-4 rounded-xl bg-black/15 px-1 py-3 shadow-inner sm:px-3">
