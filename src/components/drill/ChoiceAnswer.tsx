@@ -31,10 +31,10 @@ function choiceState<A>(
 
 // 象牙色の牌のような見た目。下の縁を厚くして立体に見せる
 const CHOICE_BASE =
-  'relative rounded-xl border-2 border-b-[6px] font-semibold tabular-nums transition-colors focus-visible:ring-2 focus-visible:ring-felt-light focus-visible:outline-none';
+  'relative rounded-xl border-2 border-b-[6px] font-semibold tabular-nums transition-[color,background-color,border-color,translate,box-shadow] focus-visible:ring-2 focus-visible:ring-felt-light focus-visible:outline-none';
 
 const CHOICE_CLASS: Record<ChoiceState, string> = {
-  open: 'border-line border-b-ivory-edge bg-ivory text-ink hover:border-felt-light',
+  open: 'border-line border-b-ivory-edge bg-ivory text-ink hover:-translate-y-0.5 hover:border-x-felt-light hover:border-t-felt-light hover:shadow-md',
   correct: 'border-correct-strong bg-correct-strong text-on-dark',
   wrong: 'border-wrong bg-wrong/10 text-wrong',
   other: 'border-line border-b-ivory-edge bg-ivory text-ink opacity-45',

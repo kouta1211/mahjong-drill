@@ -1,7 +1,7 @@
 'use client';
 
 import { MotionConfig } from 'motion/react';
-import { useState, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import {
   createLv1Rounds,
   createLv2Rounds,
@@ -52,6 +52,25 @@ type Session =
   | { id: number; level: 3; rounds: Lv3Round[] }
   | { id: number; level: 4; rounds: Lv4Round[] };
 
+/**
+ * 設定以外の画面（出題・成績・計算機）に入ったら、履歴を1つ積む。
+ * ブラウザの「戻る」でアプリの外へ出ず、設定画面に戻れるように。
+ * URL は変えない（再読み込みで、問題の無い出題画面に入らないように）
+ */
+const SCREEN_KEY = 'mahjongDrillScreen';
+
+function pushScreenEntry() {
+  window.history.pushState({ [SCREEN_KEY]: true }, '');
+}
+
+/** アプリの中のボタンで設定に戻るときは、積んだ履歴も戻す（戻るを2回押さないと出られない、を防ぐ） */
+function popScreenEntry() {
+  const state: unknown = window.history.state;
+  if (typeof state === 'object' && state !== null && SCREEN_KEY in state) {
+    window.history.back();
+  }
+}
+
 /** OS の「視差効果を減らす」がオンなら、アニメーションを止める */
 const Motion = ({ children }: { children: ReactNode }) => (
   <MotionConfig reducedMotion="user">{children}</MotionConfig>
@@ -73,19 +92,40 @@ function DrillContent({ rng = Math.random }: Props) {
     'setup'
   );
 
+  // ブラウザの「戻る」で設定画面に戻す
+  useEffect(() => {
+    const onPopState = () => {
+      setSession(null);
+      setScreen('setup');
+    };
+    window.addEventListener('popstate', onPopState);
+    return () => window.removeEventListener('popstate', onPopState);
+  }, []);
+
   // 乱数を使うので、問題は描画中ではなくボタンのイベントの中で作る
   const start = () => {
     try {
       const id = (session?.id ?? 0) + 1;
       setSession(createSession(settings, rng, id));
       setStartError(null);
+      pushScreenEntry();
     } catch (e) {
       setStartError(e instanceof Error ? e.message : '問題を作れませんでした');
     }
   };
-  const exit = () => setSession(null);
+  const exit = () => {
+    setSession(null);
+    popScreenEntry();
+  };
 
-  const back = () => setScreen('setup');
+  const open = (next: 'stats' | 'calculator') => {
+    setScreen(next);
+    pushScreenEntry();
+  };
+  const back = () => {
+    setScreen('setup');
+    popScreenEntry();
+  };
   if (screen === 'stats') return <StatsView onBack={back} />;
   if (screen === 'calculator') return <Calculator onBack={back} />;
 
@@ -96,8 +136,8 @@ function DrillContent({ rng = Math.random }: Props) {
           settings={settings}
           onChange={setSettings}
           onStart={start}
-          onShowStats={() => setScreen('stats')}
-          onShowCalculator={() => setScreen('calculator')}
+          onShowStats={() => open('stats')}
+          onShowCalculator={() => open('calculator')}
         />
         {startError && (
           <p role="alert" className={`mt-3 ${ERROR_TEXT}`}>

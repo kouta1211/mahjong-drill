@@ -1,7 +1,7 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { StrictMode } from 'react';
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { formatPayment } from '@/features/drill/payment';
 import {
   createLv1Rounds,
@@ -352,5 +352,53 @@ describe('Drill（成績の二重保存を防ぐ）', () => {
       </StrictMode>
     );
     expect(getHistorySnapshot()).toHaveLength(1);
+  });
+});
+
+describe('Drill（ブラウザの戻る）', () => {
+  // 前のテストで積んだ履歴が残っているので、いまの位置の state を空にしてから始める
+  beforeEach(() => window.history.replaceState(null, ''));
+
+  /** ブラウザの「戻る」。jsdom では popstate が後から届くので待つ */
+  const browserBack = () => window.history.back();
+
+  it('出題中に戻ると、アプリの外へ出ずに設定画面に戻る', async () => {
+    const user = userEvent.setup();
+    render(<Drill rng={seededRng(1)} />);
+    await user.click(screen.getByRole('button', { name: 'はじめる' }));
+    expect(screen.getByRole('progressbar', { name: '進み具合' })).toBeVisible();
+
+    browserBack();
+    expect(
+      await screen.findByRole('button', { name: 'はじめる' })
+    ).toBeVisible();
+  });
+
+  it.each(['成績を見る', '点数計算機'])(
+    '「%s」の画面からも、戻るで設定画面に戻る',
+    async (open) => {
+      const user = userEvent.setup();
+      render(<Drill rng={seededRng(1)} />);
+      await user.click(screen.getByRole('button', { name: open }));
+      expect(
+        screen.queryByRole('button', { name: 'はじめる' })
+      ).not.toBeInTheDocument();
+
+      browserBack();
+      expect(
+        await screen.findByRole('button', { name: 'はじめる' })
+      ).toBeVisible();
+    }
+  );
+
+  it('アプリの中のボタンで設定に戻ったら、積んだ履歴も戻す（戻るを2回押さないと出られない、を防ぐ）', async () => {
+    const user = userEvent.setup();
+    render(<Drill rng={seededRng(1)} />);
+    const before = window.history.state as unknown;
+    await user.click(screen.getByRole('button', { name: '成績を見る' }));
+    expect(window.history.state).not.toEqual(before);
+
+    await user.click(screen.getByRole('button', { name: '設定に戻る' }));
+    await waitFor(() => expect(window.history.state).toEqual(before));
   });
 });

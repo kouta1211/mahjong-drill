@@ -101,3 +101,24 @@ body {
   background: var(--paper);
   color: var(--ink);
 }
+
+@layer base {
+  /* Tailwind 4 はボタンのカーソルを矢印にするので、押せるものは指の形に戻す */
+  button:not(:disabled),
+  [role='button']:not([aria-disabled='true']) {
+    cursor: pointer;
+  }
+
+  /*
+   * ダブルタップでの拡大を止め、タップがすぐ反応するようにする（ピンチでの拡大はできる）。
+   * タップしたときの青い四角は、Tailwind の preflight が html で消している
+   */
+  button,
+  a,
+  label,
+  input,
+  select,
+  textarea {
+    touch-action: manipulation;
+  }
+}

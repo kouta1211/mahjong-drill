@@ -9,7 +9,7 @@ import {
   type WinFilter,
 } from '@/features/drill/types';
 import { RadioGroup } from './RadioGroup';
-import { PRIMARY_BUTTON } from '@/components/ui/styles';
+import { PRIMARY_BUTTON, TEXT_BUTTON } from '@/components/ui/styles';
 
 type Props = {
   settings: DrillSettings;
@@ -198,17 +198,13 @@ export function SetupForm({
         はじめる
       </button>
       <div className="flex justify-center gap-6 text-sm text-muted md:col-span-2">
-        <button
-          type="button"
-          onClick={onShowStats}
-          className="underline underline-offset-4"
-        >
+        <button type="button" onClick={onShowStats} className={TEXT_BUTTON}>
           成績を見る
         </button>
         <button
           type="button"
           onClick={onShowCalculator}
-          className="underline underline-offset-4"
+          className={TEXT_BUTTON}
         >
           点数計算機
         </button>

@@ -6,14 +6,20 @@ const FOCUS =
   'focus-visible:ring-2 focus-visible:ring-felt-light focus-visible:outline-none';
 
 /** 主な操作（はじめる・答える・もう一度）。木の板を押し込む見た目 */
-export const PRIMARY_BUTTON = `rounded-xl border-b-4 border-wood-dark bg-wood py-3 text-lg font-semibold text-on-dark shadow-sm transition hover:brightness-110 active:translate-y-0.5 active:border-b-2 disabled:opacity-50 ${FOCUS}`;
+export const PRIMARY_BUTTON = `rounded-xl border-b-4 border-wood-dark bg-wood py-3 text-lg font-semibold text-on-dark shadow-sm transition hover:brightness-110 active:translate-y-0.5 active:border-b-2 disabled:opacity-50 disabled:hover:brightness-100 ${FOCUS}`;
 
 /** 次の問題へ進む操作。卓の色 */
 export const NEXT_BUTTON = `rounded-xl border-b-4 border-felt-deep bg-felt py-3 text-lg font-semibold text-on-dark shadow-sm transition hover:brightness-110 active:translate-y-0.5 active:border-b-2 ${FOCUS}`;
 
 /** ラジオボタン・チェックボックスのラベル（中の input は sr-only）。点棒箱の札のような見た目 */
 export const TOGGLE_CHIP =
-  'cursor-pointer rounded-lg border border-line border-b-[3px] border-b-ivory-edge bg-ivory px-2 py-2 text-center text-sm transition has-checked:border-felt has-checked:bg-felt has-checked:text-on-dark has-focus-visible:ring-2 has-focus-visible:ring-felt-light has-disabled:cursor-default has-disabled:opacity-60';
+  'cursor-pointer rounded-lg border border-line border-b-[3px] border-b-ivory-edge bg-ivory px-2 py-2 text-center text-sm transition hover:border-x-felt-light hover:border-t-felt-light active:translate-y-px active:border-b has-checked:border-felt has-checked:bg-felt has-checked:text-on-dark has-focus-visible:ring-2 has-focus-visible:ring-felt-light has-disabled:cursor-default has-disabled:opacity-60 has-disabled:hover:border-x-line has-disabled:hover:border-t-line';
+
+/** 文字だけの副ボタン（成績を見る・入力をすべて消す など）。下線を引き、ホバーで濃くする */
+export const TEXT_BUTTON = `rounded underline underline-offset-4 transition-colors hover:text-ink hover:decoration-2 ${FOCUS}`;
+
+/** 小さな枠付きのボタン（計算機の役・成績の切り替え など） */
+export const SMALL_BUTTON = `rounded-lg border border-line transition hover:border-felt-light active:translate-y-px ${FOCUS}`;
 
 /** 設定や役の一覧の見出し */
 export const LEGEND = 'mb-2 text-sm font-medium text-muted';
