@@ -153,8 +153,14 @@ export function evaluateYaku(
   if (terminalHonor === 'chinroutou') yakuman.push('chinroutou');
   if (kinds.every((k) => GREEN_KINDS.includes(k))) yakuman.push('ryuuiisou');
   if (quads === 4) yakuman.push('suukantsu');
-  if (menzen && flush === 'chinitsu' && isChuurenShape(kinds))
+  // 九蓮宝燈は副露も暗槓もない手に限る。暗槓を含む同じ形は analyzeHand が出題から外す
+  if (
+    hand.melds.length === 0 &&
+    flush === 'chinitsu' &&
+    isChuurenShape(kinds)
+  ) {
     yakuman.push('chuuren');
+  }
   if (yakuman.length > 0) return { kind: 'yakuman', yakuman };
 
   const ids: YakuId[] = [];
@@ -239,8 +245,8 @@ export function evaluateYaku(
   return withHan(ids, menzen);
 }
 
-/** 九蓮宝燈: 同じ色で 1112345678999 ＋ どれか1枚 */
-function isChuurenShape(kinds: TileKind[]): boolean {
+/** 九蓮宝燈の形: 同じ色で 1112345678999 ＋ どれか1枚（暗槓の4枚も数える） */
+export function isChuurenShape(kinds: TileKind[]): boolean {
   const counts = new Array<number>(9).fill(0);
   for (const k of kinds)
     counts[rankOf(k) - 1] = (counts[rankOf(k) - 1] ?? 0) + 1;

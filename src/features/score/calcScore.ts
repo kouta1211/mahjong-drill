@@ -39,15 +39,21 @@ const LIMIT_BASE_POINTS: Record<LimitName, number> = {
   yakuman: 8000,
 };
 
-/** 30符4翻・60符3翻の基本点。切り上げ満貫の対象 */
-const KIRIAGE_BASE_POINTS = 1920;
-
 export function ceil100(points: number): number {
   return Math.ceil(points / 100) * 100;
 }
 
+/**
+ * 切り上げ満貫の対象。公式ルール 第6章第4条「30符6翻は切り上げ満貫」と、
+ * 第6条の満貫の定義「60符以上の5翻」（どちらも場ゾロ2翻込み）による。
+ * 基本点が同じ 1920 でも、120符2翻は対象にしない。
+ */
+const isKiriageTarget = (han: number, fu: number | null) =>
+  (han === 4 && fu === 30) || (han === 3 && fu === 60);
+
 function limitOf(
   han: number,
+  fu: number | null,
   basePoints: number,
   rules: ScoreRules
 ): LimitName | null {
@@ -56,7 +62,7 @@ function limitOf(
   if (han >= 8) return 'baiman';
   if (han >= 6) return 'haneman';
   if (han === 5 || basePoints >= LIMIT_BASE_POINTS.mangan) return 'mangan';
-  if (rules.kiriageMangan && basePoints === KIRIAGE_BASE_POINTS) {
+  if (rules.kiriageMangan && isKiriageTarget(han, fu)) {
     return 'mangan';
   }
   return null;
@@ -87,7 +93,7 @@ export function calcScore(
   const { han, fu, isDealer, isTsumo } = input;
 
   const rawBase = han >= 5 || fu === null ? 0 : fu * 2 ** (han + 2);
-  const limit = limitOf(han, rawBase, rules);
+  const limit = limitOf(han, fu, rawBase, rules);
   const basePoints = limit === null ? rawBase : LIMIT_BASE_POINTS[limit];
 
   let payment: Payment;
