@@ -11,7 +11,7 @@ export function QuestionCard({ question, number, total }: Props) {
   return (
     <section
       aria-label={`第${number}問`}
-      className="rounded-2xl bg-emerald-800 px-4 py-6 text-center text-white shadow"
+      className="rounded-2xl bg-emerald-800 px-4 py-6 text-center text-white shadow lg:py-12"
     >
       <p className="text-sm opacity-80">
         第{number}問 / {total}問
@@ -24,7 +24,7 @@ export function QuestionCard({ question, number, total }: Props) {
           {isTsumo ? 'ツモ' : 'ロン'}
         </span>
       </p>
-      <p className="mt-3 text-4xl font-bold tracking-wide">
+      <p className="mt-3 text-4xl font-bold tracking-wide lg:mt-5 lg:text-5xl">
         {fu === null ? `${han}翻` : `${fu}符 ${han}翻`}
       </p>
       {fu === null && (

@@ -54,13 +54,13 @@ export function SetupForm({ settings, onChange, onStart }: Props) {
 
   return (
     <form
-      className="flex flex-col gap-5"
+      className="mx-auto grid w-full gap-5 md:grid-cols-2 md:gap-x-8 lg:max-w-3xl"
       onSubmit={(e) => {
         e.preventDefault();
         onStart();
       }}
     >
-      <p className="text-sm text-zinc-600 dark:text-zinc-400">
+      <p className="text-sm text-zinc-600 md:col-span-2 dark:text-zinc-400">
         Lv1 早見表: 符と翻から点数を答えます
       </p>
       <RadioGroup
@@ -107,7 +107,7 @@ export function SetupForm({ settings, onChange, onStart }: Props) {
       />
       <button
         type="submit"
-        className="mt-2 rounded-xl bg-emerald-600 py-3 text-lg font-semibold text-white hover:bg-emerald-700 focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:outline-none"
+        className="mt-2 rounded-xl bg-emerald-600 md:col-span-2 md:mx-auto md:w-80 py-3 text-lg font-semibold text-white hover:bg-emerald-700 focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:outline-none"
       >
         はじめる
       </button>

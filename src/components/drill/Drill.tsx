@@ -63,36 +63,41 @@ export function Drill({ rng = Math.random }: Props) {
   const given = state.current?.given ?? null;
 
   return (
-    <div className="flex flex-col gap-5">
-      <QuestionCard
-        question={question}
-        number={state.index + 1}
-        total={state.questions.length}
-      />
-      {state.settings.answerMode === 'choice' ? (
-        <ChoiceAnswer
-          choices={choices}
-          answer={question.answer}
-          given={given}
-          onAnswer={(payment) => dispatch({ type: 'answer', given: payment })}
+    // PC では左に問題、右に回答と解説を並べる
+    <div className="flex flex-col gap-5 lg:grid lg:grid-cols-2 lg:items-start lg:gap-8">
+      <div className="lg:sticky lg:top-8">
+        <QuestionCard
+          question={question}
+          number={state.index + 1}
+          total={state.questions.length}
         />
-      ) : (
-        <NumberAnswer
-          // 問題ごとに入力欄を空に戻す
-          key={state.index}
-          kind={question.answer.kind}
-          disabled={given !== null}
-          onAnswer={(payment) => dispatch({ type: 'answer', given: payment })}
-        />
-      )}
-      {state.current && (
-        <Feedback
-          answered={state.current}
-          showExplanation={state.settings.showExplanation}
-          isLast={state.index + 1 === state.questions.length}
-          onNext={() => dispatch({ type: 'next' })}
-        />
-      )}
+      </div>
+      <div className="flex flex-col gap-5">
+        {state.settings.answerMode === 'choice' ? (
+          <ChoiceAnswer
+            choices={choices}
+            answer={question.answer}
+            given={given}
+            onAnswer={(payment) => dispatch({ type: 'answer', given: payment })}
+          />
+        ) : (
+          <NumberAnswer
+            // 問題ごとに入力欄を空に戻す
+            key={state.index}
+            kind={question.answer.kind}
+            disabled={given !== null}
+            onAnswer={(payment) => dispatch({ type: 'answer', given: payment })}
+          />
+        )}
+        {state.current && (
+          <Feedback
+            answered={state.current}
+            showExplanation={state.settings.showExplanation}
+            isLast={state.index + 1 === state.questions.length}
+            onNext={() => dispatch({ type: 'next' })}
+          />
+        )}
+      </div>
     </div>
   );
 }

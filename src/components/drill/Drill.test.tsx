@@ -66,6 +66,32 @@ describe('Drill（4択）', () => {
   });
 });
 
+describe('Drill（キーボード操作）', () => {
+  it('数字キーで選び、Enter で次の問題へ進む', async () => {
+    const user = userEvent.setup();
+    const [round] = expectedRounds(DEFAULT_SETTINGS, 4);
+    if (!round) throw new Error('問題が作れませんでした');
+    render(<Drill rng={seededRng(4)} />);
+    await user.click(screen.getByRole('button', { name: 'はじめる' }));
+
+    const answer = formatPayment(round.question.answer);
+    const index = round.choices.map(formatPayment).indexOf(answer);
+    await user.keyboard(String(index + 1));
+    expect(screen.getByRole('status')).toHaveTextContent('正解！');
+
+    await user.keyboard('{Enter}');
+    expect(screen.getByText('第2問 / 10問')).toBeInTheDocument();
+  });
+
+  it('修飾キー付きや範囲外の数字では選ばない', async () => {
+    const user = userEvent.setup();
+    render(<Drill rng={seededRng(5)} />);
+    await user.click(screen.getByRole('button', { name: 'はじめる' }));
+    await user.keyboard('{Control>}1{/Control}5');
+    expect(screen.queryByRole('status')).not.toBeInTheDocument();
+  });
+});
+
 describe('Drill（数値入力）', () => {
   it('不正な入力はエラーを出して送らず、正しい入力で判定する', async () => {
     const user = userEvent.setup();

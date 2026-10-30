@@ -30,3 +30,8 @@
 
 - `mahjong-drill.vercel.app` が 200 を返し、「麻雀点数計算ドリル」の文字列も含んでいたので本番だと報告した。実際は、同じ名前を持つ別の人のアプリだった。本当の本番は `mahjong-drill-phi.vercel.app`
 - **次は**: 本番 URL は `vercel inspect <デプロイURL>` の Aliases で確かめる。表示の確認には、このアプリにしかない文言を使う
+
+## 2026-10-30 Windows では TaskStop で dev サーバーが止まりきらない
+
+- `npx next dev` をバックグラウンドで起動して `TaskStop` で止めたが、子プロセスの node が残ってポートを使い続けた。次に起動したサーバーは `EADDRINUSE` で落ち、残った古いサーバーが画面を出していた
+- **次は**: dev サーバーを止めたら、`netstat -ano | grep :<port>` でポートが空いたかを確かめる。残っていたら `taskkill //PID <pid> //T //F` で子プロセスごと止める
