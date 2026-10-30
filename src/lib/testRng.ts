@@ -1,4 +1,4 @@
-import type { Rng } from './types';
+import type { Rng } from './rng';
 
 /** テスト用。同じ seed なら同じ列を返す乱数（mulberry32） */
 export function seededRng(seed: number): Rng {

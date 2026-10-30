@@ -2,6 +2,8 @@ import {
   QUESTION_COUNTS,
   type AnswerMode,
   type DrillSettings,
+  type Level,
+  type MeldFilter,
   type RangeFilter,
   type SeatFilter,
   type WinFilter,
@@ -13,6 +15,26 @@ type Props = {
   onChange: (settings: DrillSettings) => void;
   onStart: () => void;
 };
+
+const LEVEL_OPTIONS = [
+  { value: 1, label: 'Lv1 早見表' },
+  { value: 2, label: 'Lv2 符計算' },
+] as const satisfies readonly { value: Level; label: string }[];
+
+const LEVEL_DESCRIPTION: Record<Level, string> = {
+  1: '符と翻から点数を答えます',
+  2: '手牌から符を答えます',
+};
+
+const MELD_OPTIONS = [
+  { value: 'any', label: '鳴きあり' },
+  { value: 'closedOnly', label: '門前のみ' },
+] as const satisfies readonly { value: MeldFilter; label: string }[];
+
+const CHIITOI_OPTIONS = [
+  { value: 'on', label: '含める' },
+  { value: 'off', label: '含めない' },
+] as const;
 
 const SEAT_OPTIONS = [
   { value: 'both', label: '両方' },
@@ -60,9 +82,18 @@ export function SetupForm({ settings, onChange, onStart }: Props) {
         onStart();
       }}
     >
-      <p className="text-sm text-zinc-600 md:col-span-2 dark:text-zinc-400">
-        Lv1 早見表: 符と翻から点数を答えます
-      </p>
+      <div className="md:col-span-2">
+        <RadioGroup
+          legend="レベル"
+          name="level"
+          options={LEVEL_OPTIONS}
+          value={settings.level}
+          onChange={(v) => set('level', v)}
+        />
+        <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
+          {LEVEL_DESCRIPTION[settings.level]}
+        </p>
+      </div>
       <RadioGroup
         legend="出題数"
         name="count"
@@ -70,26 +101,47 @@ export function SetupForm({ settings, onChange, onStart }: Props) {
         value={settings.count}
         onChange={(v) => set('count', v)}
       />
-      <RadioGroup
-        legend="親・子"
-        name="seat"
-        options={SEAT_OPTIONS}
-        value={settings.seat}
-        onChange={(v) => set('seat', v)}
-      />
+      {settings.level === 1 ? (
+        <>
+          <RadioGroup
+            legend="親・子"
+            name="seat"
+            options={SEAT_OPTIONS}
+            value={settings.seat}
+            onChange={(v) => set('seat', v)}
+          />
+          <RadioGroup
+            legend="点数の範囲"
+            name="range"
+            options={RANGE_OPTIONS}
+            value={settings.range}
+            onChange={(v) => set('range', v)}
+          />
+        </>
+      ) : (
+        <>
+          <RadioGroup
+            legend="鳴き"
+            name="melds"
+            options={MELD_OPTIONS}
+            value={settings.melds}
+            onChange={(v) => set('melds', v)}
+          />
+          <RadioGroup
+            legend="七対子"
+            name="includeChiitoi"
+            options={CHIITOI_OPTIONS}
+            value={settings.includeChiitoi ? 'on' : 'off'}
+            onChange={(v) => set('includeChiitoi', v === 'on')}
+          />
+        </>
+      )}
       <RadioGroup
         legend="和了"
         name="win"
         options={WIN_OPTIONS}
         value={settings.win}
         onChange={(v) => set('win', v)}
-      />
-      <RadioGroup
-        legend="点数の範囲"
-        name="range"
-        options={RANGE_OPTIONS}
-        value={settings.range}
-        onChange={(v) => set('range', v)}
       />
       <RadioGroup
         legend="答え方"

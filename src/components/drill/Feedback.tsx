@@ -1,16 +1,23 @@
-import type { AnsweredQuestion } from '@/features/drill/drillReducer';
-import { explain } from '@/features/drill/explain';
-import { formatPayment } from '@/features/drill/payment';
+import type { ReactNode } from 'react';
 
 type Props = {
-  answered: AnsweredQuestion;
-  showExplanation: boolean;
+  correct: boolean;
+  givenText: string;
+  answerText: string;
+  /** 解説なしの設定なら null */
+  explanation: ReactNode | null;
   isLast: boolean;
   onNext: () => void;
 };
 
-export function Feedback({ answered, showExplanation, isLast, onNext }: Props) {
-  const { question, given, correct } = answered;
+export function Feedback({
+  correct,
+  givenText,
+  answerText,
+  explanation,
+  isLast,
+  onNext,
+}: Props) {
   return (
     <div className="flex flex-col gap-3">
       <div role="status" className="text-center">
@@ -21,17 +28,17 @@ export function Feedback({ answered, showExplanation, isLast, onNext }: Props) {
         </p>
         {!correct && (
           <p className="mt-1 tabular-nums">
-            あなたの答え {formatPayment(given)} → 正解{' '}
-            <strong>{formatPayment(question.answer)}</strong>
+            あなたの答え {givenText} → 正解 <strong>{answerText}</strong>
           </p>
         )}
       </div>
-      {showExplanation && (
-        <ol className="list-decimal rounded-xl bg-zinc-100 py-3 pr-3 pl-8 text-sm leading-relaxed tabular-nums dark:bg-zinc-900">
-          {explain(question).map((step) => (
-            <li key={step}>{step}</li>
-          ))}
-        </ol>
+      {explanation !== null && (
+        <section
+          aria-label="解説"
+          className="rounded-xl bg-zinc-100 p-3 text-sm leading-relaxed tabular-nums dark:bg-zinc-900"
+        >
+          {explanation}
+        </section>
       )}
       <button
         type="button"

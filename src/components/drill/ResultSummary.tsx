@@ -1,25 +1,28 @@
-import type { AnsweredQuestion } from '@/features/drill/drillReducer';
-import { formatPayment } from '@/features/drill/payment';
+export type ResultItem = {
+  correct: boolean;
+  /** 問題の要約（例: 子・ロン 30符 3翻） */
+  label: string;
+  given: string;
+  answer: string;
+};
 
 type Props = {
-  history: AnsweredQuestion[];
+  items: ResultItem[];
   onRestart: () => void;
 };
 
-export function ResultSummary({ history, onRestart }: Props) {
-  const correctCount = history.filter((h) => h.correct).length;
+export function ResultSummary({ items, onRestart }: Props) {
+  const correctCount = items.filter((h) => h.correct).length;
   const rate =
-    history.length === 0
-      ? 0
-      : Math.round((correctCount / history.length) * 100);
-  const mistakes = history.filter((h) => !h.correct);
+    items.length === 0 ? 0 : Math.round((correctCount / items.length) * 100);
+  const mistakes = items.filter((h) => !h.correct);
 
   return (
     <div className="mx-auto flex w-full flex-col gap-5 lg:max-w-3xl">
       <section aria-label="結果" className="text-center">
         <p className="text-5xl font-bold tabular-nums">
           {correctCount}
-          <span className="text-2xl text-zinc-500"> / {history.length}</span>
+          <span className="text-2xl text-zinc-500"> / {items.length}</span>
         </p>
         <p className="mt-1 text-zinc-600 dark:text-zinc-400">正答率 {rate}%</p>
       </section>
@@ -28,21 +31,16 @@ export function ResultSummary({ history, onRestart }: Props) {
         <section aria-label="間違えた問題">
           <h2 className="mb-2 font-semibold">間違えた問題</h2>
           <ul className="grid gap-2 md:grid-cols-2">
-            {mistakes.map(({ question, given }, i) => (
+            {mistakes.map((item, i) => (
               <li
                 key={i}
                 className="rounded-xl border border-zinc-200 px-3 py-2 text-sm tabular-nums dark:border-zinc-800"
               >
-                <span className="font-medium">
-                  {question.isDealer ? '親' : '子'}・
-                  {question.isTsumo ? 'ツモ' : 'ロン'}{' '}
-                  {question.fu === null ? '' : `${question.fu}符 `}
-                  {question.han}翻
-                </span>
+                <span className="font-medium">{item.label}</span>
                 <span className="block text-zinc-600 dark:text-zinc-400">
-                  あなた {formatPayment(given)} → 正解{' '}
+                  あなた {item.given} → 正解{' '}
                   <strong className="text-zinc-900 dark:text-zinc-100">
-                    {formatPayment(question.answer)}
+                    {item.answer}
                   </strong>
                 </span>
               </li>
@@ -58,7 +56,7 @@ export function ResultSummary({ history, onRestart }: Props) {
       <button
         type="button"
         onClick={onRestart}
-        className="rounded-xl bg-emerald-600 py-3 text-lg font-semibold text-white hover:bg-emerald-700 focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:outline-none"
+        className="rounded-xl bg-emerald-600 py-3 text-lg font-semibold text-white hover:bg-emerald-700 focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:outline-none md:mx-auto md:w-80"
       >
         もう一度
       </button>
