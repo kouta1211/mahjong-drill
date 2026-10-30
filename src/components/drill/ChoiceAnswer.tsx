@@ -1,27 +1,31 @@
 'use client';
 
 import { useEffect } from 'react';
-import type { Payment } from '@/features/score/calcScore';
-import { formatPayment, isSamePayment } from '@/features/drill/payment';
-
-type Props = {
-  choices: Payment[];
-  answer: Payment;
+type Props<A> = {
+  choices: A[];
+  answer: A;
   /** 回答済みなら、その回答 */
-  given: Payment | null;
-  onAnswer: (payment: Payment) => void;
+  given: A | null;
+  format: (answer: A) => string;
+  isSame: (a: A, b: A) => boolean;
+  onAnswer: (answer: A) => void;
 };
 
-function choiceClass(choice: Payment, answer: Payment, given: Payment | null) {
+function choiceClass<A>(
+  choice: A,
+  answer: A,
+  given: A | null,
+  isSame: (a: A, b: A) => boolean
+) {
   const base =
     'relative rounded-xl border-2 py-4 text-xl font-semibold tabular-nums transition-colors focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:outline-none';
   if (given === null) {
     return `${base} border-zinc-300 hover:border-emerald-600 hover:bg-emerald-50 dark:border-zinc-700 dark:hover:bg-emerald-950`;
   }
-  if (isSamePayment(choice, answer)) {
+  if (isSame(choice, answer)) {
     return `${base} border-emerald-600 bg-emerald-600 text-white`;
   }
-  if (isSamePayment(choice, given)) {
+  if (isSame(choice, given)) {
     return `${base} border-rose-500 bg-rose-50 text-rose-700 dark:bg-rose-950 dark:text-rose-300`;
   }
   return `${base} border-zinc-200 text-zinc-400 dark:border-zinc-800`;
@@ -38,7 +42,14 @@ function isPlainKey(e: KeyboardEvent): boolean {
   );
 }
 
-export function ChoiceAnswer({ choices, answer, given, onAnswer }: Props) {
+export function ChoiceAnswer<A>({
+  choices,
+  answer,
+  given,
+  format,
+  isSame,
+  onAnswer,
+}: Props<A>) {
   // キーボードの 1〜4 で選ぶ
   useEffect(() => {
     if (given !== null) return;
@@ -57,11 +68,11 @@ export function ChoiceAnswer({ choices, answer, given, onAnswer }: Props) {
     <div className="grid grid-cols-2 gap-3 md:grid-cols-4 lg:grid-cols-2">
       {choices.map((choice, i) => (
         <button
-          key={formatPayment(choice)}
+          key={format(choice)}
           type="button"
           disabled={given !== null}
           onClick={() => onAnswer(choice)}
-          className={choiceClass(choice, answer, given)}
+          className={choiceClass(choice, answer, given, isSame)}
         >
           <kbd
             aria-hidden
@@ -69,7 +80,7 @@ export function ChoiceAnswer({ choices, answer, given, onAnswer }: Props) {
           >
             {i + 1}
           </kbd>
-          {formatPayment(choice)}
+          {format(choice)}
         </button>
       ))}
     </div>

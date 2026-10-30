@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { CHOICE_COUNT, generateChoices } from './generateChoices';
 import { listCandidates } from './generateQuestion';
 import { formatPayment } from './payment';
-import { seededRng } from './testRng';
+import { seededRng } from '@/lib/testRng';
 
 describe('generateChoices', () => {
   const all = listCandidates({ seat: 'both', win: 'both', range: 'all' });

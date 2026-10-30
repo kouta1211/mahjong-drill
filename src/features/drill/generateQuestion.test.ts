@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { calcScore } from '@/features/score/calcScore';
 import { generateQuestions, listCandidates } from './generateQuestion';
-import { seededRng } from './testRng';
+import { seededRng } from '@/lib/testRng';
 import { DEFAULT_SETTINGS, type DrillSettings } from './types';
 
 describe('listCandidates', () => {

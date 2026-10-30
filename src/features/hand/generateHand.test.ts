@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { seededRng } from '@/features/drill/testRng';
+import { seededRng } from '@/lib/testRng';
 import { countKinds, DRAGONS, isSimple } from '@/features/tiles/tile';
 import { analyzeFu } from './analyzeFu';
 import { generateFuHand, type HandFilters } from './generateHand';

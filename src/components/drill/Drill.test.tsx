@@ -2,18 +2,14 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 import { formatPayment } from '@/features/drill/payment';
-import { createStartAction } from '@/features/drill/startDrill';
-import { seededRng } from '@/features/drill/testRng';
+import { createLv1Rounds, createLv2Rounds } from '@/features/drill/levels';
+import { seededRng } from '@/lib/testRng';
 import { DEFAULT_SETTINGS, type DrillSettings } from '@/features/drill/types';
 import { Drill } from './Drill';
 
 /** 同じ seed で、画面が出す問題と選択肢を先に知っておく */
 function expectedRounds(settings: DrillSettings, seed: number) {
-  const { questions, choices } = createStartAction(settings, seededRng(seed));
-  return questions.map((question, i) => ({
-    question,
-    choices: choices[i] ?? [],
-  }));
+  return createLv1Rounds(settings, seededRng(seed));
 }
 
 describe('Drill（4択）', () => {
@@ -120,5 +116,42 @@ describe('Drill（数値入力）', () => {
     await user.type(input, String(round.question.answer.total));
     await user.click(screen.getByRole('button', { name: '答える' }));
     expect(screen.getByRole('status')).toHaveTextContent('正解！');
+  });
+});
+
+describe('Drill（Lv2 符計算）', () => {
+  it('手牌を表示し、符を答えて解説（内訳）を見られる', async () => {
+    const user = userEvent.setup();
+    const settings: DrillSettings = { ...DEFAULT_SETTINGS, level: 2, count: 5 };
+    const [round] = createLv2Rounds(settings, seededRng(6));
+    if (!round) throw new Error('問題が作れませんでした');
+    render(<Drill rng={seededRng(6)} />);
+
+    await user.click(screen.getByRole('radio', { name: 'Lv2 符計算' }));
+    await user.click(screen.getByRole('radio', { name: '5問' }));
+    expect(
+      screen.queryByRole('radio', { name: '満貫未満' })
+    ).not.toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'はじめる' }));
+
+    expect(screen.getByRole('group', { name: '手牌' })).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: `${round.answer}符` }));
+    expect(screen.getByRole('status')).toHaveTextContent('正解！');
+    expect(screen.getByRole('table')).toHaveTextContent(`${round.answer}符`);
+  });
+
+  it('数値入力では 10符単位でない値を送れない', async () => {
+    const user = userEvent.setup();
+    render(<Drill rng={seededRng(7)} />);
+    await user.click(screen.getByRole('radio', { name: 'Lv2 符計算' }));
+    await user.click(screen.getByRole('radio', { name: '数値入力' }));
+    await user.click(screen.getByRole('button', { name: 'はじめる' }));
+
+    await user.type(screen.getByLabelText('符'), '32');
+    await user.click(screen.getByRole('button', { name: '答える' }));
+    expect(
+      screen.getByText('10符単位で入力してください（七対子は25符）')
+    ).toBeInTheDocument();
+    expect(screen.queryByRole('status')).not.toBeInTheDocument();
   });
 });

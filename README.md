@@ -7,7 +7,7 @@
 
 ## 牌画像
 
-Tile images: [FluffyStuff/riichi-mahjong-tiles](https://github.com/FluffyStuff/riichi-mahjong-tiles) (CC0)（Lv2 から使用予定）
+Tile images: [FluffyStuff/riichi-mahjong-tiles](https://github.com/FluffyStuff/riichi-mahjong-tiles) (CC0)。`public/tiles/` に同梱
 
 ## 技術スタック
 

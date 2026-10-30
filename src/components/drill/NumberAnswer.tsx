@@ -1,29 +1,27 @@
 'use client';
 
 import { useState } from 'react';
-import type { Payment } from '@/features/score/calcScore';
-import { parsePoints } from '@/features/drill/payment';
+import type { ParseResult } from '@/lib/parseNumber';
 
-type Props = {
-  /** 答える形式。正解の種類から決まる */
-  kind: Payment['kind'];
+export type NumberField = { key: string; label: string; suffix?: string };
+
+type Props<A> = {
+  fields: NumberField[];
+  /** 1欄ずつ読む。読めなければエラーの文言を返す */
+  parse: (raw: string) => ParseResult;
+  /** すべての欄が読めたら、答えの形にまとめる */
+  toAnswer: (values: Record<string, number>) => A;
   disabled: boolean;
-  onAnswer: (payment: Payment) => void;
+  onAnswer: (answer: A) => void;
 };
 
-type Field = { key: string; label: string; suffix?: string };
-
-const FIELDS: Record<Payment['kind'], Field[]> = {
-  ron: [{ key: 'total', label: 'ロンの点数' }],
-  tsumoDealer: [{ key: 'all', label: '子1人あたりの支払い', suffix: 'オール' }],
-  tsumoNonDealer: [
-    { key: 'fromNonDealer', label: '子の支払い' },
-    { key: 'fromDealer', label: '親の支払い' },
-  ],
-};
-
-export function NumberAnswer({ kind, disabled, onAnswer }: Props) {
-  const fields = FIELDS[kind];
+export function NumberAnswer<A>({
+  fields,
+  parse,
+  toAnswer,
+  disabled,
+  onAnswer,
+}: Props<A>) {
   const [values, setValues] = useState<Record<string, string>>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -31,29 +29,12 @@ export function NumberAnswer({ kind, disabled, onAnswer }: Props) {
     const parsed: Record<string, number> = {};
     const nextErrors: Record<string, string> = {};
     for (const field of fields) {
-      const result = parsePoints(values[field.key] ?? '');
+      const result = parse(values[field.key] ?? '');
       if (result.ok) parsed[field.key] = result.value;
       else nextErrors[field.key] = result.error;
     }
     setErrors(nextErrors);
-    if (Object.keys(nextErrors).length > 0) return;
-
-    const get = (key: string) => parsed[key] ?? 0;
-    switch (kind) {
-      case 'ron':
-        onAnswer({ kind, total: get('total') });
-        break;
-      case 'tsumoDealer':
-        onAnswer({ kind, all: get('all') });
-        break;
-      case 'tsumoNonDealer':
-        onAnswer({
-          kind,
-          fromNonDealer: get('fromNonDealer'),
-          fromDealer: get('fromDealer'),
-        });
-        break;
-    }
+    if (Object.keys(nextErrors).length === 0) onAnswer(toAnswer(parsed));
   };
 
   return (
@@ -110,7 +91,7 @@ export function NumberAnswer({ kind, disabled, onAnswer }: Props) {
       <button
         type="submit"
         disabled={disabled}
-        className="rounded-xl bg-emerald-600 py-3 text-lg font-semibold text-white hover:bg-emerald-700 disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:outline-none"
+        className="rounded-xl bg-emerald-600 py-3 text-lg font-semibold text-white hover:bg-emerald-700 focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:outline-none disabled:opacity-50"
       >
         答える
       </button>

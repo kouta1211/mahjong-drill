@@ -9,6 +9,7 @@ import {
   type TileKind,
   type Wind,
 } from '@/features/tiles/tile';
+import type { Rng } from '@/lib/rng';
 import { analyzeFu, type FuAnalysis } from './analyzeFu';
 import {
   isMenzen,
@@ -16,8 +17,6 @@ import {
   type CalledMeld,
   type WinningHand,
 } from './types';
-
-export type Rng = () => number;
 
 export type HandFilters = {
   /** 門前の手だけにするか、副露した手も出すか */
