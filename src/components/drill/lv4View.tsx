@@ -62,4 +62,10 @@ export const lv4View: LevelView<Lv4Question, Payment> = {
   renderExplanation: (round) => <ScoreExplanation question={round.question} />,
   describe: (q) =>
     `${q.isDealer ? '親' : '子'}・${honbaLabel(q.scoreQuestion.honba)}${describeHand(q.hand)}`,
+  tagsOf: ({ question: q }) => [
+    q.isDealer ? '親' : '子',
+    q.score.limit === null ? '満貫未満' : '満貫以上',
+    q.dora.total > 0 ? 'ドラあり' : 'ドラなし',
+    ...(q.scoreQuestion.honba ? ['本場あり'] : []),
+  ],
 };

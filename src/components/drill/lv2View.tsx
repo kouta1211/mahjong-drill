@@ -5,6 +5,9 @@ import { FuBreakdown } from './Breakdown';
 import type { LevelView } from './DrillSession';
 import { describeHand, HandQuestionCard } from './HandQuestionCard';
 import { NumberAnswer } from './NumberAnswer';
+import { WAIT_LABEL } from '@/features/hand/calcFu';
+import { interpretHand } from '@/features/hand/interpret';
+import { isMenzen } from '@/features/hand/types';
 
 const isSameFu = (a: number, b: number) => a === b;
 const FU_FIELDS = [{ key: 'fu', label: '符', suffix: '符' }];
@@ -35,4 +38,18 @@ export const lv2View: LevelView<GeneratedHand, number> = {
     <FuBreakdown fu={round.question.analysis.result} />
   ),
   describe: ({ hand }) => describeHand(hand),
+  tagsOf: ({ question: { hand } }) => {
+    const [first] = interpretHand(hand);
+    return [
+      isMenzen(hand) ? '門前' : '副露',
+      hand.isTsumo ? 'ツモ' : 'ロン',
+      ...(first
+        ? [
+            first.form === 'chiitoi'
+              ? '七対子'
+              : `待ち: ${WAIT_LABEL[first.wait]}`,
+          ]
+        : []),
+    ];
+  },
 };
