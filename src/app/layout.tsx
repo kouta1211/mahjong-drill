@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Geist, Geist_Mono } from 'next/font/google';
+import { Geist, Geist_Mono, Shippori_Mincho } from 'next/font/google';
 import './globals.css';
 
 const geistSans = Geist({
@@ -12,6 +12,14 @@ const geistMono = Geist_Mono({
   subsets: ['latin'],
 });
 
+// 見出し用。日本語の文字は subsets にないので preload せず、使う文字の分だけ読み込む
+const shippori = Shippori_Mincho({
+  variable: '--font-shippori',
+  weight: '700',
+  subsets: ['latin'],
+  preload: false,
+});
+
 // プレースホルダー: 公開前に文言を見直す
 export const metadata: Metadata = {
   title: '麻雀点数計算ドリル',
@@ -22,9 +30,9 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
   return (
     <html
       lang="ja"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${shippori.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="flex min-h-full flex-col font-sans">{children}</body>
     </html>
   );
 }

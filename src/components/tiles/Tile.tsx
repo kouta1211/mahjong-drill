@@ -32,7 +32,7 @@ export function Tile({
       role="img"
       aria-label={label}
       className={`block aspect-[3/4] w-(--tw) rounded-[8%] bg-[length:100%_100%] bg-center bg-no-repeat shadow-sm ${
-        highlight ? 'ring-2 ring-amber-400' : ''
+        highlight ? 'ring-2 ring-gold' : ''
       }`}
       style={{
         backgroundImage: faceDown

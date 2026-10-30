@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { MotionConfig } from 'motion/react';
+import { useState, type ReactNode } from 'react';
 import {
   createLv1Rounds,
   createLv2Rounds,
@@ -22,6 +23,7 @@ import { lv2View } from './lv2View';
 import { lv3View } from './lv3View';
 import { lv4View } from './lv4View';
 import { SetupForm } from './SetupForm';
+import { ERROR_TEXT } from '@/components/ui/styles';
 
 type Props = {
   /** テストで出題を固定するために差し替える */
@@ -47,7 +49,20 @@ type Session =
   | { id: number; level: 3; rounds: Lv3Round[] }
   | { id: number; level: 4; rounds: Lv4Round[] };
 
-export function Drill({ rng = Math.random }: Props) {
+/** OS の「視差効果を減らす」がオンなら、アニメーションを止める */
+const Motion = ({ children }: { children: ReactNode }) => (
+  <MotionConfig reducedMotion="user">{children}</MotionConfig>
+);
+
+export function Drill(props: Props) {
+  return (
+    <Motion>
+      <DrillContent {...props} />
+    </Motion>
+  );
+}
+
+function DrillContent({ rng = Math.random }: Props) {
   const [settings, setSettings] = useState(DEFAULT_SETTINGS);
   const [session, setSession] = useState<Session | null>(null);
   const [startError, setStartError] = useState<string | null>(null);
@@ -69,7 +84,7 @@ export function Drill({ rng = Math.random }: Props) {
       <>
         <SetupForm settings={settings} onChange={setSettings} onStart={start} />
         {startError && (
-          <p role="alert" className="mt-3 text-sm text-rose-600">
+          <p role="alert" className={`mt-3 ${ERROR_TEXT}`}>
             {startError}
           </p>
         )}

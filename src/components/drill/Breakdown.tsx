@@ -18,7 +18,7 @@ export function BreakdownTable({ caption, rows, total }: Props) {
       <caption className="sr-only">{caption}</caption>
       <tbody>
         {rows.map((row, i) => (
-          <tr key={i} className="border-b border-zinc-200 dark:border-zinc-800">
+          <tr key={i} className="border-b border-line">
             <th scope="row" className="py-1 text-left font-normal">
               {row.label}
             </th>
