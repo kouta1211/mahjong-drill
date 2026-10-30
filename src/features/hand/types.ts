@@ -1,4 +1,9 @@
-import type { Tile, TileKind, Wind } from '@/features/tiles/tile';
+import {
+  DRAGONS,
+  type Tile,
+  type TileKind,
+  type Wind,
+} from '@/features/tiles/tile';
 
 /** 副露（チー・ポン・明槓）と暗槓。手の中で固定された面子 */
 export type CalledMeld =
@@ -42,3 +47,9 @@ export type Interpretation =
 
 export const isMenzen = (hand: WinningHand) =>
   hand.melds.every((m) => m.type === 'ankan');
+
+/** 役牌（三元牌・自風・場風）か。雀頭の符と、副露した手の役の判定に使う */
+export const isValueTile = (kind: TileKind, hand: WinningHand) =>
+  (DRAGONS as readonly number[]).includes(kind) ||
+  kind === hand.seatWind ||
+  kind === hand.roundWind;

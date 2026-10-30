@@ -1,10 +1,10 @@
+import { isYaochu, tileName, type TileKind } from '@/features/tiles/tile';
 import {
-  DRAGONS,
-  isYaochu,
-  tileName,
-  type TileKind,
-} from '@/features/tiles/tile';
-import { isMenzen, type Interpretation, type WinningHand } from './types';
+  isMenzen,
+  isValueTile,
+  type Interpretation,
+  type WinningHand,
+} from './types';
 
 /**
  * 符の規則は Mリーグ公式ルール 第6章第3条（docs/requirements.md 6章）。
@@ -44,14 +44,6 @@ const WAIT_LABEL = {
   tanki: '単騎',
   shanpon: '双碰',
 } as const;
-
-function isValueTile(kind: TileKind, hand: WinningHand): boolean {
-  return (
-    (DRAGONS as readonly number[]).includes(kind) ||
-    kind === hand.seatWind ||
-    kind === hand.roundWind
-  );
-}
 
 function setFu(
   type: 'triplet' | 'quad',
