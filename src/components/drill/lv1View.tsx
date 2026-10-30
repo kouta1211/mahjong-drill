@@ -8,7 +8,7 @@ import {
 import { createSessionReducer } from '@/features/drill/session';
 import type { Question } from '@/features/drill/types';
 import type { LevelView } from './DrillSession';
-import type { NumberField } from './NumberAnswer';
+import { NumberAnswer, type NumberField } from './NumberAnswer';
 import { QuestionCard } from './QuestionCard';
 
 const PAYMENT_FIELDS: Record<Payment['kind'], NumberField[]> = {
@@ -44,14 +44,18 @@ export const lv1View: LevelView<Question, Payment> = {
   reducer: createSessionReducer<Question, Payment>(isSamePayment),
   format: formatPayment,
   isSame: isSamePayment,
+  choiceLayout: 'grid',
   renderQuestion: (question, number, total) => (
     <QuestionCard question={question} number={number} total={total} />
   ),
-  numberInput: {
-    fields: (round) => PAYMENT_FIELDS[round.answer.kind],
-    parse: parsePoints,
-    toAnswer: (round, values) => toPayment(round.answer.kind, values),
-  },
+  renderFreeAnswer: (round, props) => (
+    <NumberAnswer
+      fields={PAYMENT_FIELDS[round.answer.kind]}
+      parse={parsePoints}
+      toAnswer={(values) => toPayment(round.answer.kind, values)}
+      {...props}
+    />
+  ),
   renderExplanation: (round) => (
     <ol className="list-decimal pl-5">
       {explain(round.question).map((step) => (

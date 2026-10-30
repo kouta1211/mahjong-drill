@@ -2,23 +2,11 @@ import type { Payment } from '@/features/score/calcScore';
 import { listCandidates } from './generateQuestion';
 import { formatPayment, totalOf } from './payment';
 import type { Question, Rng } from './types';
+import { shuffle } from '@/lib/random';
 
 export const CHOICE_COUNT = 4;
 /** 誤答は、正解に点数が近いこの数の中から選ぶ */
 const NEAR_POOL_SIZE = 6;
-
-function shuffle<T>(items: readonly T[], rng: Rng): T[] {
-  const result = [...items];
-  for (let i = result.length - 1; i > 0; i--) {
-    const j = Math.floor(rng() * (i + 1));
-    const a = result[i];
-    const b = result[j];
-    if (a === undefined || b === undefined) continue;
-    result[i] = b;
-    result[j] = a;
-  }
-  return result;
-}
 
 /**
  * 正解を含む4つの選択肢を作る。

@@ -4,11 +4,23 @@ import { generateFuHand, type GeneratedHand } from '@/features/generate/fuHand';
 import { generateChoices } from './generateChoices';
 import { generateQuestions } from './generateQuestion';
 import { normalizeNumberInput, type ParseResult } from '@/lib/parseNumber';
+import {
+  generateYakuHand,
+  type GeneratedYakuHand,
+} from '@/features/generate/yakuHand';
+import { isMenzen } from '@/features/hand/types';
 import type { Round } from './session';
 import type { DrillSettings, Question, Rng } from './types';
+import {
+  generateYakuChoices,
+  toYakuAnswer,
+  type YakuAnswer,
+} from './yakuAnswer';
+import { shuffle } from '@/lib/random';
 
 export type Lv1Round = Round<Question, Payment>;
 export type Lv2Round = Round<GeneratedHand, number>;
+export type Lv3Round = Round<GeneratedYakuHand, YakuAnswer>;
 
 /** Lv1（早見表）の問題を作る。乱数を使うので、描画中ではなくイベントの中で呼ぶこと */
 export function createLv1Rounds(settings: DrillSettings, rng: Rng): Lv1Round[] {
@@ -23,19 +35,6 @@ export function createLv1Rounds(settings: DrillSettings, rng: Rng): Lv1Round[] {
 const NEAR_FU_COUNT = 5;
 const MIN_FU = 20;
 const MAX_CHOICE_FU = 140;
-
-function shuffle<T>(items: readonly T[], rng: Rng): T[] {
-  const result = [...items];
-  for (let i = result.length - 1; i > 0; i--) {
-    const j = Math.floor(rng() * (i + 1));
-    const a = result[i];
-    const b = result[j];
-    if (a === undefined || b === undefined) continue;
-    result[i] = b;
-    result[j] = a;
-  }
-  return result;
-}
 
 /** 符の4択。誤答は正解に近い符から選ぶ */
 export function generateFuChoices(answer: number, rng: Rng): number[] {
@@ -80,4 +79,26 @@ export function parseFu(raw: string): ParseResult {
     return { ok: false, error: '10符単位で入力してください（七対子は25符）' };
   }
   return { ok: true, value };
+}
+
+/** Lv3（役・翻）の問題を作る。乱数を使うので、描画中ではなくイベントの中で呼ぶこと */
+export function createLv3Rounds(settings: DrillSettings, rng: Rng): Lv3Round[] {
+  const filters = {
+    melds: settings.melds,
+    win: settings.win,
+    includeChiitoi: settings.includeChiitoi,
+  };
+  return Array.from({ length: settings.count }, () => {
+    const generated = generateYakuHand(filters, rng);
+    const menzen = isMenzen(generated.hand);
+    const answer = toYakuAnswer(
+      generated.analysis.yaku.map((y) => y.id),
+      menzen
+    );
+    return {
+      question: generated,
+      answer,
+      choices: generateYakuChoices(answer, menzen, rng),
+    };
+  });
 }

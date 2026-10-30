@@ -18,6 +18,7 @@ import {
   type Wind,
 } from '@/features/tiles/tile';
 import type { Rng } from '@/lib/rng';
+import { pick, randomInt, shuffle, weighted } from '@/lib/random';
 
 export type HandFilters = {
   /** 門前の手だけにするか、副露した手も出すか */
@@ -52,39 +53,6 @@ const SET_TYPE_WEIGHTS: readonly (readonly [SetPlan['type'], number])[] = [
 const ROUND_WINDS: readonly Wind[] = [WIND.east, WIND.south];
 const SEAT_WINDS: readonly Wind[] = Object.values(WIND);
 const NUMBER_SUITS = ['m', 'p', 's'] as const;
-
-const randomInt = (n: number, rng: Rng) => Math.floor(rng() * n);
-
-function pick<T>(items: readonly T[], rng: Rng): T {
-  const item = items[randomInt(items.length, rng)];
-  if (item === undefined) throw new Error('候補が空です');
-  return item;
-}
-
-/** [値, 重み] の組から、重みに比例して1つ選ぶ（重みの合計は 1） */
-function weighted<T>(entries: readonly (readonly [T, number])[], rng: Rng): T {
-  let r = rng();
-  for (const [value, w] of entries) {
-    if (r < w) return value;
-    r -= w;
-  }
-  const last = entries.at(-1);
-  if (!last) throw new Error('重みが空です');
-  return last[0];
-}
-
-function shuffle<T>(items: readonly T[], rng: Rng): T[] {
-  const result = [...items];
-  for (let i = result.length - 1; i > 0; i--) {
-    const j = randomInt(i + 1, rng);
-    const a = result[i];
-    const b = result[j];
-    if (a === undefined || b === undefined) continue;
-    result[i] = b;
-    result[j] = a;
-  }
-  return result;
-}
 
 type SetPlan = { type: 'sequence' | 'triplet' | 'quad'; kind: TileKind };
 

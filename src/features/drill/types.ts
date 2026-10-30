@@ -4,7 +4,7 @@ export type SeatFilter = 'dealer' | 'nonDealer' | 'both';
 export type WinFilter = 'tsumo' | 'ron' | 'both';
 export type RangeFilter = 'belowMangan' | 'all';
 export type AnswerMode = 'choice' | 'number';
-export type Level = 1 | 2;
+export type Level = 1 | 2 | 3;
 export type MeldFilter = 'closedOnly' | 'any';
 
 export const QUESTION_COUNTS = [5, 10, 20] as const;
@@ -18,9 +18,9 @@ export type DrillSettings = {
   range: RangeFilter;
   answerMode: AnswerMode;
   showExplanation: boolean;
-  /** Lv2 のみ */
+  /** Lv2・Lv3 のみ */
   melds: MeldFilter;
-  /** Lv2 のみ */
+  /** Lv2・Lv3 のみ */
   includeChiitoi: boolean;
 };
 
