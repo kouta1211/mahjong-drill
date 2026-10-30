@@ -257,9 +257,19 @@ describe('calcScore（入力の検証）', () => {
     { han: 1.5, fu: 30 },
     { han: 2, fu: null },
     { han: 2, fu: 35 },
+    { han: 2, fu: 10 },
   ])('不正な入力 $han翻 $fu符 は RangeError', ({ han, fu }) => {
     expect(() =>
       calcScore({ han, fu, isDealer: false, isTsumo: false })
     ).toThrow(RangeError);
+  });
+});
+
+describe('calcScore（早見表の範囲を超える符）', () => {
+  it('120符以上の手も計算できる（么九牌の暗槓が重なる手など）', () => {
+    // 子 130符1翻 ロン: 130×8=1040 → ×4=4160 → 4200
+    expect(
+      calcScore({ han: 1, fu: 130, isDealer: false, isTsumo: false }).payment
+    ).toEqual({ kind: 'ron', total: 4200 });
   });
 });

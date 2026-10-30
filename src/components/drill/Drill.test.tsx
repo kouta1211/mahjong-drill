@@ -6,6 +6,7 @@ import {
   createLv1Rounds,
   createLv2Rounds,
   createLv3Rounds,
+  createLv4Rounds,
 } from '@/features/drill/levels';
 import { formatYaku } from '@/features/drill/yakuAnswer';
 import { YAKU } from '@/features/yaku/yakuList';
@@ -208,5 +209,34 @@ describe('Drill（Lv3 役・翻）', () => {
     }
     await user.click(screen.getByRole('button', { name: /^答える/ }));
     expect(screen.getByRole('status')).toHaveTextContent('正解！');
+  });
+});
+
+describe('Drill（Lv4 総合）', () => {
+  it('手牌とドラ表示牌を見て点数を答え、役・ドラ・点数の解説を見られる', async () => {
+    const user = userEvent.setup();
+    const settings: DrillSettings = { ...DEFAULT_SETTINGS, level: 4, count: 5 };
+    const [round] = createLv4Rounds(settings, seededRng(10));
+    if (!round) throw new Error('問題が作れませんでした');
+    render(<Drill rng={seededRng(10)} />);
+
+    await user.click(screen.getByRole('radio', { name: 'Lv4 総合' }));
+    await user.click(screen.getByRole('radio', { name: '5問' }));
+    expect(screen.getByRole('radio', { name: '親' })).toBeInTheDocument();
+    expect(
+      screen.queryByRole('radio', { name: '満貫未満' })
+    ).not.toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'はじめる' }));
+
+    expect(
+      screen.getByRole('group', { name: 'ドラ表示牌' })
+    ).toBeInTheDocument();
+    await user.click(
+      screen.getByRole('button', { name: formatPayment(round.answer) })
+    );
+    expect(screen.getByRole('status')).toHaveTextContent('正解！');
+    expect(screen.getByRole('table', { name: '役の内訳' })).toHaveTextContent(
+      `${round.question.han}翻`
+    );
   });
 });

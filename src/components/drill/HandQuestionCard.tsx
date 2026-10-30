@@ -9,6 +9,10 @@ type Props = {
   prompt: string;
   number: number;
   total: number;
+  /** 親か子かを見せる（Lv4）。省略すると出さない */
+  isDealer?: boolean;
+  /** 手牌の下に出すもの（Lv4 のドラ表示牌） */
+  children?: ReactNode;
 };
 
 const windName = (kind: number) => tileName({ kind, red: false });
@@ -19,8 +23,15 @@ function Badge({ children }: { children: ReactNode }) {
   );
 }
 
-/** 手牌を見せる問題（Lv2・Lv3） */
-export function HandQuestionCard({ hand, prompt, number, total }: Props) {
+/** 手牌を見せる問題（Lv2〜Lv4） */
+export function HandQuestionCard({
+  hand,
+  prompt,
+  number,
+  total,
+  isDealer,
+  children,
+}: Props) {
   return (
     <section
       aria-label={`第${number}問`}
@@ -30,6 +41,7 @@ export function HandQuestionCard({ hand, prompt, number, total }: Props) {
         第{number}問 / {total}問 ・ {prompt}
       </p>
       <p className="mt-3 flex flex-wrap justify-center gap-2 text-sm">
+        {isDealer !== undefined && <Badge>{isDealer ? '親' : '子'}</Badge>}
         <Badge>{windName(hand.roundWind)}場</Badge>
         <Badge>自風 {windName(hand.seatWind)}</Badge>
         <Badge>{hand.isTsumo ? 'ツモ' : 'ロン'}</Badge>
@@ -38,6 +50,7 @@ export function HandQuestionCard({ hand, prompt, number, total }: Props) {
       <div className="mt-4 rounded-xl bg-emerald-900/60 px-1 py-3 sm:px-3">
         <HandView hand={hand} />
       </div>
+      {children}
     </section>
   );
 }

@@ -5,15 +5,22 @@ import {
   createLv1Rounds,
   createLv2Rounds,
   createLv3Rounds,
+  createLv4Rounds,
   type Lv1Round,
   type Lv2Round,
   type Lv3Round,
+  type Lv4Round,
 } from '@/features/drill/levels';
-import { DEFAULT_SETTINGS, type Rng } from '@/features/drill/types';
+import {
+  DEFAULT_SETTINGS,
+  type DrillSettings,
+  type Rng,
+} from '@/features/drill/types';
 import { DrillSession } from './DrillSession';
 import { lv1View } from './lv1View';
 import { lv2View } from './lv2View';
 import { lv3View } from './lv3View';
+import { lv4View } from './lv4View';
 import { SetupForm } from './SetupForm';
 
 type Props = {
@@ -21,10 +28,24 @@ type Props = {
   rng?: Rng;
 };
 
+function createSession(settings: DrillSettings, rng: Rng, id: number): Session {
+  switch (settings.level) {
+    case 1:
+      return { id, level: 1, rounds: createLv1Rounds(settings, rng) };
+    case 2:
+      return { id, level: 2, rounds: createLv2Rounds(settings, rng) };
+    case 3:
+      return { id, level: 3, rounds: createLv3Rounds(settings, rng) };
+    case 4:
+      return { id, level: 4, rounds: createLv4Rounds(settings, rng) };
+  }
+}
+
 type Session =
   | { id: number; level: 1; rounds: Lv1Round[] }
   | { id: number; level: 2; rounds: Lv2Round[] }
-  | { id: number; level: 3; rounds: Lv3Round[] };
+  | { id: number; level: 3; rounds: Lv3Round[] }
+  | { id: number; level: 4; rounds: Lv4Round[] };
 
 export function Drill({ rng = Math.random }: Props) {
   const [settings, setSettings] = useState(DEFAULT_SETTINGS);
@@ -35,13 +56,7 @@ export function Drill({ rng = Math.random }: Props) {
   const start = () => {
     try {
       const id = (session?.id ?? 0) + 1;
-      setSession(
-        settings.level === 1
-          ? { id, level: 1, rounds: createLv1Rounds(settings, rng) }
-          : settings.level === 2
-            ? { id, level: 2, rounds: createLv2Rounds(settings, rng) }
-            : { id, level: 3, rounds: createLv3Rounds(settings, rng) }
-      );
+      setSession(createSession(settings, rng, id));
       setStartError(null);
     } catch (e) {
       setStartError(e instanceof Error ? e.message : '問題を作れませんでした');
@@ -88,6 +103,15 @@ export function Drill({ rng = Math.random }: Props) {
           key={session.id}
           rounds={session.rounds}
           view={lv3View}
+          {...common}
+        />
+      );
+    case 4:
+      return (
+        <DrillSession
+          key={session.id}
+          rounds={session.rounds}
+          view={lv4View}
           {...common}
         />
       );

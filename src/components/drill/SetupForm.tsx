@@ -20,12 +20,14 @@ const LEVEL_OPTIONS = [
   { value: 1, label: 'Lv1 早見表' },
   { value: 2, label: 'Lv2 符計算' },
   { value: 3, label: 'Lv3 役・翻' },
+  { value: 4, label: 'Lv4 総合' },
 ] as const satisfies readonly { value: Level; label: string }[];
 
 const LEVEL_DESCRIPTION: Record<Level, string> = {
   1: '符と翻から点数を答えます',
   2: '手牌から符を答えます',
   3: '手牌から役と翻数を答えます',
+  4: '手牌とドラから点数を答えます',
 };
 
 const MELD_OPTIONS = [
@@ -105,24 +107,26 @@ export function SetupForm({ settings, onChange, onStart }: Props) {
         value={settings.count}
         onChange={(v) => set('count', v)}
       />
-      {settings.level === 1 ? (
-        <>
-          <RadioGroup
-            legend="親・子"
-            name="seat"
-            options={SEAT_OPTIONS}
-            value={settings.seat}
-            onChange={(v) => set('seat', v)}
-          />
-          <RadioGroup
-            legend="点数の範囲"
-            name="range"
-            options={RANGE_OPTIONS}
-            value={settings.range}
-            onChange={(v) => set('range', v)}
-          />
-        </>
-      ) : (
+      {/* 項目ごとに、使うレベルでだけ出す */}
+      {(settings.level === 1 || settings.level === 4) && (
+        <RadioGroup
+          legend="親・子"
+          name="seat"
+          options={SEAT_OPTIONS}
+          value={settings.seat}
+          onChange={(v) => set('seat', v)}
+        />
+      )}
+      {settings.level === 1 && (
+        <RadioGroup
+          legend="点数の範囲"
+          name="range"
+          options={RANGE_OPTIONS}
+          value={settings.range}
+          onChange={(v) => set('range', v)}
+        />
+      )}
+      {settings.level >= 2 && (
         <>
           <RadioGroup
             legend="鳴き"
