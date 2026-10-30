@@ -1,0 +1,7 @@
+# 改行は LF に固定する。
+# Windows の core.autocrlf=true だと取り出し時に CRLF になり、
+# Prettier（endOfLine: lf）の format:check が全ファイルで落ちる（2026-10-30 に確認）。
+* text=auto eol=lf
+
+*.png binary
+*.ico binary
