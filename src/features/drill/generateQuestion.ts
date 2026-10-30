@@ -1,7 +1,13 @@
 import { calcScore } from '@/features/score/calcScore';
 import { listPossibleCombos } from '@/features/score/validCombos';
-import type { DrillSettings, Question, Rng } from './types';
-import { pick } from '@/lib/random';
+import { addHonba } from '@/features/score/honba';
+import {
+  MAX_HONBA,
+  type DrillSettings,
+  type Question,
+  type Rng,
+} from './types';
+import { pick, randomInt } from '@/lib/random';
 
 type Filters = Pick<DrillSettings, 'seat' | 'win' | 'range'>;
 
@@ -43,7 +49,17 @@ export function generateQuestions(
       prev && candidates.length > 1
         ? candidates.filter((c) => !isSameQuestion(c, prev))
         : candidates;
-    questions.push(pick(pool, rng));
+    const picked = pick(pool, rng);
+    if (!settings.honba) {
+      questions.push(picked);
+      continue;
+    }
+    const honba = randomInt(MAX_HONBA + 1, rng);
+    questions.push({
+      ...picked,
+      honba,
+      answer: addHonba(picked.answer, honba),
+    });
   }
   return questions;
 }

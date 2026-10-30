@@ -41,6 +41,12 @@ const CHIITOI_OPTIONS = [
   { value: 'off', label: '含めない' },
 ] as const;
 
+// 「解説: あり / なし」と同じ名前にしないよう、言葉を変える（読み上げで区別できるように）
+const HONBA_OPTIONS = [
+  { value: 'off', label: '付けない' },
+  { value: 'on', label: '付ける' },
+] as const;
+
 const SEAT_OPTIONS = [
   { value: 'both', label: '両方' },
   { value: 'nonDealer', label: '子' },
@@ -118,6 +124,15 @@ export function SetupForm({ settings, onChange, onStart }: Props) {
           options={SEAT_OPTIONS}
           value={settings.seat}
           onChange={(v) => set('seat', v)}
+        />
+      )}
+      {(settings.level === 1 || settings.level === 4) && (
+        <RadioGroup
+          legend="本場"
+          name="honba"
+          options={HONBA_OPTIONS}
+          value={settings.honba ? 'on' : 'off'}
+          onChange={(v) => set('honba', v === 'on')}
         />
       )}
       {settings.level === 1 && (

@@ -19,6 +19,8 @@ export type DrillSettings = {
   range: RangeFilter;
   answerMode: AnswerMode;
   showExplanation: boolean;
+  /** Lv1・Lv4 のみ。true なら 0〜MAX_HONBA 本場をランダムに付ける */
+  honba: boolean;
   /** Lv2〜Lv4 のみ */
   melds: MeldFilter;
   /** Lv2〜Lv4 のみ */
@@ -33,15 +35,22 @@ export const DEFAULT_SETTINGS: DrillSettings = {
   range: 'belowMangan',
   answerMode: 'choice',
   showExplanation: true,
+  honba: false,
   melds: 'any',
   includeChiitoi: true,
 };
+
+/** 本場ありのときに出す本場の上限 */
+export const MAX_HONBA = 4;
 
 export type Question = {
   han: number;
   fu: number | null;
   isDealer: boolean;
   isTsumo: boolean;
+  /** 本場。省略は 0本場 */
+  honba?: number;
+  /** 本場を足した支払い */
   answer: Payment;
 };
 

@@ -3,6 +3,8 @@ import { CHIITOI_FU } from '@/features/hand/calcFu';
 import { generateFuHand, type GeneratedHand } from '@/features/generate/fuHand';
 import { generateChoices } from './generateChoices';
 import { generateQuestions } from './generateQuestion';
+import { addHonba } from '@/features/score/honba';
+import { randomInt } from '@/lib/random';
 import { normalizeNumberInput, type ParseResult } from '@/lib/parseNumber';
 import {
   generateYakuHand,
@@ -14,7 +16,12 @@ import {
 } from '@/features/generate/scoreHand';
 import { isMenzen } from '@/features/hand/types';
 import type { Round } from './session';
-import type { DrillSettings, Question, Rng } from './types';
+import {
+  MAX_HONBA,
+  type DrillSettings,
+  type Question,
+  type Rng,
+} from './types';
 import {
   generateYakuChoices,
   toYakuAnswer,
@@ -120,13 +127,15 @@ export function createLv4Rounds(settings: DrillSettings, rng: Rng): Lv4Round[] {
   };
   return Array.from({ length: settings.count }, () => {
     const generated = generateScoreHand(filters, rng);
-    const answer = generated.score.payment;
+    const honba = settings.honba ? randomInt(MAX_HONBA + 1, rng) : 0;
+    const answer = addHonba(generated.score.payment, honba);
     // 4択の誤答と点数の解説は、Lv1 の仕組みをそのまま使う
     const scoreQuestion: Question = {
       han: generated.han,
       fu: generated.han >= 5 ? null : generated.analysis.fu.fu,
       isDealer: generated.isDealer,
       isTsumo: generated.hand.isTsumo,
+      honba,
       answer,
     };
     return {

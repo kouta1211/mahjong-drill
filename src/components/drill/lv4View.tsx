@@ -33,6 +33,8 @@ function ScoreExplanation({ question }: { question: Lv4Question }) {
   );
 }
 
+const honbaLabel = (honba = 0) => (honba > 0 ? `${honba}本場・` : '');
+
 /** Lv4（総合）: 手牌・ドラ表示牌から支払う点数を答える */
 export const lv4View: LevelView<Lv4Question, Payment> = {
   reducer: createSessionReducer<Lv4Question, Payment>(isSamePayment),
@@ -46,6 +48,7 @@ export const lv4View: LevelView<Lv4Question, Payment> = {
       number={number}
       total={total}
       isDealer={question.isDealer}
+      honba={question.scoreQuestion.honba}
     >
       <DoraView
         indicators={question.indicators}
@@ -57,5 +60,6 @@ export const lv4View: LevelView<Lv4Question, Payment> = {
     <PaymentAnswer kind={round.answer.kind} {...props} />
   ),
   renderExplanation: (round) => <ScoreExplanation question={round.question} />,
-  describe: (q) => `${q.isDealer ? '親' : '子'}・${describeHand(q.hand)}`,
+  describe: (q) =>
+    `${q.isDealer ? '親' : '子'}・${honbaLabel(q.scoreQuestion.honba)}${describeHand(q.hand)}`,
 };

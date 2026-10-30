@@ -1,6 +1,7 @@
-import type { Payment } from '@/features/score/calcScore';
+import { calcScore, type Payment } from '@/features/score/calcScore';
+import { addHonba } from '@/features/score/honba';
 import { listCandidates } from './generateQuestion';
-import { formatPayment, totalOf } from './payment';
+import { formatPayment, isSamePayment, totalOf } from './payment';
 import type { Question, Rng } from './types';
 import { shuffle } from '@/lib/random';
 
@@ -14,6 +15,8 @@ const NEAR_POOL_SIZE = 6;
  * 形式（オール表記など）だけで正解が分かることはない。
  */
 export function generateChoices(question: Question, rng: Rng): Payment[] {
+  const honba = question.honba ?? 0;
+  if (honba > 0) return generateHonbaChoices(question, honba, rng);
   const answerKey = formatPayment(question.answer);
   const answerTotal = totalOf(question.answer);
 
@@ -35,4 +38,32 @@ export function generateChoices(question: Question, rng: Rng): Payment[] {
     .slice(0, NEAR_POOL_SIZE);
   const wrong = shuffle(near, rng).slice(0, CHOICE_COUNT - 1);
   return shuffle([question.answer, ...wrong], rng);
+}
+
+/**
+ * 本場のある問題の4択。本場を除いた問題で誤答を作って同じ本場を足し、
+ * 一番起きやすい間違いの「本場を足し忘れた点数」を必ず1つ混ぜる。
+ */
+function generateHonbaChoices(
+  question: Question,
+  honba: number,
+  rng: Rng
+): Payment[] {
+  const withoutHonba: Question = {
+    ...question,
+    honba: 0,
+    answer: calcScore(question).payment,
+  };
+  const others = generateChoices(withoutHonba, rng)
+    .filter((c) => !isSamePayment(c, withoutHonba.answer))
+    .map((c) => addHonba(c, honba));
+
+  const wrong = new Map<string, Payment>();
+  for (const c of [withoutHonba.answer, ...others]) {
+    if (!isSamePayment(c, question.answer)) wrong.set(formatPayment(c), c);
+  }
+  return shuffle(
+    [question.answer, ...[...wrong.values()].slice(0, CHOICE_COUNT - 1)],
+    rng
+  );
 }

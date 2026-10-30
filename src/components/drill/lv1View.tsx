@@ -27,7 +27,7 @@ export const lv1View: LevelView<Question, Payment> = {
     </ol>
   ),
   describe: (q) =>
-    `${q.isDealer ? '親' : '子'}・${q.isTsumo ? 'ツモ' : 'ロン'} ${
+    `${q.isDealer ? '親' : '子'}・${q.honba ? `${q.honba}本場・` : ''}${q.isTsumo ? 'ツモ' : 'ロン'} ${
       q.fu === null ? '' : `${q.fu}符 `
     }${q.han}翻`,
 };

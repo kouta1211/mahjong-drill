@@ -1,5 +1,7 @@
 import { calcScore, ceil100, type LimitName } from '@/features/score/calcScore';
 import type { Question } from './types';
+import { HONBA_RON, HONBA_TSUMO_EACH } from '@/features/score/honba';
+import { formatPayment } from './payment';
 
 const LIMIT_LABEL: Record<LimitName, string> = {
   mangan: '満貫',
@@ -46,6 +48,14 @@ export function explain(question: Question): string[] {
   } else {
     steps.push(`子のツモ: 子2人が 基本点 = ${rounded(basePoints)} ずつ`);
     steps.push(`親は 基本点 × 2 = ${rounded(basePoints * 2)}`);
+  }
+
+  const honba = question.honba ?? 0;
+  if (honba > 0) {
+    const add = isTsumo
+      ? `支払う人それぞれに +${HONBA_TSUMO_EACH * honba}`
+      : `+${HONBA_RON * honba}`;
+    steps.push(`${honba}本場: ${add} → ${formatPayment(question.answer)}`);
   }
   return steps;
 }
