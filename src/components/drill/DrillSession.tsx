@@ -1,6 +1,6 @@
 'use client';
 
-import { useReducer, type ReactNode } from 'react';
+import { Fragment, useReducer, type ReactNode } from 'react';
 import {
   startSession,
   type Round,
@@ -8,13 +8,16 @@ import {
   type SessionState,
 } from '@/features/drill/session';
 import type { DrillSettings } from '@/features/drill/types';
-import type { ParseResult } from '@/lib/parseNumber';
 import { ChoiceAnswer } from './ChoiceAnswer';
 import { Feedback } from './Feedback';
-import { NumberAnswer, type NumberField } from './NumberAnswer';
 import { ResultSummary } from './ResultSummary';
 
-/** レベルごとに違う部分。Lv1 は lv1View.tsx、Lv2 は lv2View.tsx */
+export type FreeAnswerProps<A> = {
+  disabled: boolean;
+  onAnswer: (answer: A) => void;
+};
+
+/** レベルごとに違う部分。lv1View.tsx・lv2View.tsx・lv3View.tsx */
 export type LevelView<Q, A> = {
   reducer: (
     state: SessionState<Q, A>,
@@ -23,11 +26,13 @@ export type LevelView<Q, A> = {
   format: (answer: A) => string;
   isSame: (a: A, b: A) => boolean;
   renderQuestion: (question: Q, number: number, total: number) => ReactNode;
-  numberInput: {
-    fields: (round: Round<Q, A>) => NumberField[];
-    parse: (raw: string) => ParseResult;
-    toAnswer: (round: Round<Q, A>, values: Record<string, number>) => A;
-  };
+  /** 4択の並べ方。答えが長いレベルは list */
+  choiceLayout: 'grid' | 'list';
+  /** 4択以外の答え方（Lv1・Lv2 は数値入力、Lv3 は役を選ぶ） */
+  renderFreeAnswer: (
+    round: Round<Q, A>,
+    props: FreeAnswerProps<A>
+  ) => ReactNode;
   renderExplanation: (round: Round<Q, A>) => ReactNode;
   /** 結果画面の一覧に出す、問題の要約 */
   describe: (question: Q) => string;
@@ -86,17 +91,16 @@ export function DrillSession<Q, A>({
             format={view.format}
             isSame={view.isSame}
             onAnswer={onAnswer}
+            layout={view.choiceLayout}
           />
         ) : (
-          <NumberAnswer
-            // 問題ごとに入力欄を空に戻す
-            key={state.index}
-            fields={view.numberInput.fields(round)}
-            parse={view.numberInput.parse}
-            toAnswer={(values) => view.numberInput.toAnswer(round, values)}
-            disabled={given !== null}
-            onAnswer={onAnswer}
-          />
+          // 問題ごとに入力を空に戻す
+          <Fragment key={state.index}>
+            {view.renderFreeAnswer(round, {
+              disabled: given !== null,
+              onAnswer,
+            })}
+          </Fragment>
         )}
         {state.current && (
           <Feedback

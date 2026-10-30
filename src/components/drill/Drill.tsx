@@ -4,13 +4,16 @@ import { useState } from 'react';
 import {
   createLv1Rounds,
   createLv2Rounds,
+  createLv3Rounds,
   type Lv1Round,
   type Lv2Round,
+  type Lv3Round,
 } from '@/features/drill/levels';
 import { DEFAULT_SETTINGS, type Rng } from '@/features/drill/types';
 import { DrillSession } from './DrillSession';
 import { lv1View } from './lv1View';
 import { lv2View } from './lv2View';
+import { lv3View } from './lv3View';
 import { SetupForm } from './SetupForm';
 
 type Props = {
@@ -20,7 +23,8 @@ type Props = {
 
 type Session =
   | { id: number; level: 1; rounds: Lv1Round[] }
-  | { id: number; level: 2; rounds: Lv2Round[] };
+  | { id: number; level: 2; rounds: Lv2Round[] }
+  | { id: number; level: 3; rounds: Lv3Round[] };
 
 export function Drill({ rng = Math.random }: Props) {
   const [settings, setSettings] = useState(DEFAULT_SETTINGS);
@@ -34,7 +38,9 @@ export function Drill({ rng = Math.random }: Props) {
       setSession(
         settings.level === 1
           ? { id, level: 1, rounds: createLv1Rounds(settings, rng) }
-          : { id, level: 2, rounds: createLv2Rounds(settings, rng) }
+          : settings.level === 2
+            ? { id, level: 2, rounds: createLv2Rounds(settings, rng) }
+            : { id, level: 3, rounds: createLv3Rounds(settings, rng) }
       );
       setStartError(null);
     } catch (e) {
@@ -56,21 +62,34 @@ export function Drill({ rng = Math.random }: Props) {
     );
   }
 
-  return session.level === 1 ? (
-    <DrillSession
-      key={session.id}
-      rounds={session.rounds}
-      view={lv1View}
-      settings={settings}
-      onExit={exit}
-    />
-  ) : (
-    <DrillSession
-      key={session.id}
-      rounds={session.rounds}
-      view={lv2View}
-      settings={settings}
-      onExit={exit}
-    />
-  );
+  const common = { settings, onExit: exit };
+  switch (session.level) {
+    case 1:
+      return (
+        <DrillSession
+          key={session.id}
+          rounds={session.rounds}
+          view={lv1View}
+          {...common}
+        />
+      );
+    case 2:
+      return (
+        <DrillSession
+          key={session.id}
+          rounds={session.rounds}
+          view={lv2View}
+          {...common}
+        />
+      );
+    case 3:
+      return (
+        <DrillSession
+          key={session.id}
+          rounds={session.rounds}
+          view={lv3View}
+          {...common}
+        />
+      );
+  }
 }

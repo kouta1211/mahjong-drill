@@ -19,11 +19,13 @@ type Props = {
 const LEVEL_OPTIONS = [
   { value: 1, label: 'Lv1 早見表' },
   { value: 2, label: 'Lv2 符計算' },
+  { value: 3, label: 'Lv3 役・翻' },
 ] as const satisfies readonly { value: Level; label: string }[];
 
 const LEVEL_DESCRIPTION: Record<Level, string> = {
   1: '符と翻から点数を答えます',
   2: '手牌から符を答えます',
+  3: '手牌から役と翻数を答えます',
 };
 
 const MELD_OPTIONS = [
@@ -53,10 +55,12 @@ const RANGE_OPTIONS = [
   { value: 'all', label: '満貫以上も' },
 ] as const satisfies readonly { value: RangeFilter; label: string }[];
 
-const MODE_OPTIONS = [
-  { value: 'choice', label: '4択' },
-  { value: 'number', label: '数値入力' },
-] as const satisfies readonly { value: AnswerMode; label: string }[];
+/** 4択以外の答え方の呼び方。Lv3 は数値ではなく役を選ぶ */
+const modeOptions = (level: Level) =>
+  [
+    { value: 'choice', label: '4択' },
+    { value: 'number', label: level === 3 ? '役を選ぶ' : '数値入力' },
+  ] as const satisfies readonly { value: AnswerMode; label: string }[];
 
 const EXPLANATION_OPTIONS = [
   { value: 'on', label: 'あり' },
@@ -146,7 +150,7 @@ export function SetupForm({ settings, onChange, onStart }: Props) {
       <RadioGroup
         legend="答え方"
         name="answerMode"
-        options={MODE_OPTIONS}
+        options={modeOptions(settings.level)}
         value={settings.answerMode}
         onChange={(v) => set('answerMode', v)}
       />

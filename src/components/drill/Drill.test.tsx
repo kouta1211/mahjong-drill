@@ -2,7 +2,13 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 import { formatPayment } from '@/features/drill/payment';
-import { createLv1Rounds, createLv2Rounds } from '@/features/drill/levels';
+import {
+  createLv1Rounds,
+  createLv2Rounds,
+  createLv3Rounds,
+} from '@/features/drill/levels';
+import { formatYaku } from '@/features/drill/yakuAnswer';
+import { YAKU } from '@/features/yaku/yakuList';
 import { seededRng } from '@/lib/testRng';
 import { DEFAULT_SETTINGS, type DrillSettings } from '@/features/drill/types';
 import { Drill } from './Drill';
@@ -153,5 +159,54 @@ describe('Drill（Lv2 符計算）', () => {
       screen.getByText('10符単位で入力してください（七対子は25符）')
     ).toBeInTheDocument();
     expect(screen.queryByRole('status')).not.toBeInTheDocument();
+  });
+});
+
+describe('Drill（Lv3 役・翻）', () => {
+  const settings: DrillSettings = { ...DEFAULT_SETTINGS, level: 3, count: 5 };
+
+  it('4択で役の組み合わせを選び、役の内訳を見られる', async () => {
+    const user = userEvent.setup();
+    const [round] = createLv3Rounds(settings, seededRng(8));
+    if (!round) throw new Error('問題が作れませんでした');
+    render(<Drill rng={seededRng(8)} />);
+
+    await user.click(screen.getByRole('radio', { name: 'Lv3 役・翻' }));
+    await user.click(screen.getByRole('radio', { name: '5問' }));
+    await user.click(screen.getByRole('button', { name: 'はじめる' }));
+
+    await user.click(
+      screen.getByRole('button', { name: formatYaku(round.answer) })
+    );
+    expect(screen.getByRole('status')).toHaveTextContent('正解！');
+    expect(screen.getByRole('table')).toHaveTextContent(
+      `${round.answer.han}翻`
+    );
+  });
+
+  it('役を選ぶ: 何も選ばずには答えられず、正解の役を選べば正解', async () => {
+    const user = userEvent.setup();
+    const [round] = createLv3Rounds(
+      { ...settings, answerMode: 'number' },
+      seededRng(9)
+    );
+    if (!round) throw new Error('問題が作れませんでした');
+    render(<Drill rng={seededRng(9)} />);
+
+    await user.click(screen.getByRole('radio', { name: 'Lv3 役・翻' }));
+    await user.click(screen.getByRole('radio', { name: '5問' }));
+    await user.click(screen.getByRole('radio', { name: '役を選ぶ' }));
+    await user.click(screen.getByRole('button', { name: 'はじめる' }));
+
+    await user.click(screen.getByRole('button', { name: '答える' }));
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      '役を1つ以上選んでください'
+    );
+
+    for (const id of round.answer.ids) {
+      await user.click(screen.getByRole('checkbox', { name: YAKU[id].name }));
+    }
+    await user.click(screen.getByRole('button', { name: /^答える/ }));
+    expect(screen.getByRole('status')).toHaveTextContent('正解！');
   });
 });

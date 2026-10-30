@@ -1,6 +1,7 @@
 import { calcScore } from '@/features/score/calcScore';
 import { listPossibleCombos } from '@/features/score/validCombos';
 import type { DrillSettings, Question, Rng } from './types';
+import { pick } from '@/lib/random';
 
 type Filters = Pick<DrillSettings, 'seat' | 'win' | 'range'>;
 
@@ -18,12 +19,6 @@ export function listCandidates({ seat, win, range }: Filters): Question[] {
     }
   }
   return candidates;
-}
-
-function pick<T>(items: readonly T[], rng: Rng): T {
-  const item = items[Math.floor(rng() * items.length)];
-  if (item === undefined) throw new Error('候補が空です');
-  return item;
 }
 
 const isSameQuestion = (a: Question, b: Question) =>

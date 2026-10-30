@@ -1,10 +1,9 @@
-import type { GeneratedHand } from '@/features/hand/generateHand';
-import { isMenzen } from '@/features/hand/types';
+import type { GeneratedHand } from '@/features/generate/fuHand';
 import { parseFu } from '@/features/drill/levels';
 import { createSessionReducer } from '@/features/drill/session';
-import { formatTiles, sortTiles } from '@/features/tiles/tile';
 import type { LevelView } from './DrillSession';
-import { FuQuestionCard } from './FuQuestionCard';
+import { describeHand, HandQuestionCard } from './HandQuestionCard';
+import { NumberAnswer } from './NumberAnswer';
 
 function FuExplanation({ question }: { question: GeneratedHand }) {
   const { items, rawFu, fu } = question.analysis.result;
@@ -36,23 +35,30 @@ function FuExplanation({ question }: { question: GeneratedHand }) {
 }
 
 const isSameFu = (a: number, b: number) => a === b;
+const FU_FIELDS = [{ key: 'fu', label: '符', suffix: '符' }];
 
 /** Lv2（符計算）: 手牌から符を答える */
 export const lv2View: LevelView<GeneratedHand, number> = {
   reducer: createSessionReducer<GeneratedHand, number>(isSameFu),
   format: (fu) => `${fu}符`,
   isSame: isSameFu,
+  choiceLayout: 'grid',
   renderQuestion: (question, number, total) => (
-    <FuQuestionCard question={question} number={number} total={total} />
+    <HandQuestionCard
+      hand={question.hand}
+      prompt="符はいくつ？"
+      number={number}
+      total={total}
+    />
   ),
-  numberInput: {
-    fields: () => [{ key: 'fu', label: '符', suffix: '符' }],
-    parse: parseFu,
-    toAnswer: (_, values) => values.fu ?? 0,
-  },
+  renderFreeAnswer: (_, props) => (
+    <NumberAnswer
+      fields={FU_FIELDS}
+      parse={parseFu}
+      toAnswer={(values) => values.fu ?? 0}
+      {...props}
+    />
+  ),
   renderExplanation: (round) => <FuExplanation question={round.question} />,
-  describe: ({ hand }) =>
-    `${isMenzen(hand) ? '門前' : '副露'}・${hand.isTsumo ? 'ツモ' : 'ロン'} ${formatTiles(
-      sortTiles(hand.concealed)
-    )} + ${formatTiles([hand.winTile])}`,
+  describe: ({ hand }) => describeHand(hand),
 };
