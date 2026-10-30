@@ -12,7 +12,13 @@ import { WIND, tileName, type Wind } from '@/features/tiles/tile';
 import { YAKUMAN } from '@/features/yaku/yakuList';
 import { FuBreakdown, YakuBreakdown } from '@/components/drill/Breakdown';
 import { RadioGroup } from '@/components/drill/RadioGroup';
-import { LEGEND, PANEL, PRIMARY_BUTTON } from '@/components/ui/styles';
+import {
+  LEGEND,
+  PANEL,
+  PRIMARY_BUTTON,
+  SMALL_BUTTON,
+  TEXT_BUTTON,
+} from '@/components/ui/styles';
 import {
   calculatorReducer,
   initialCalculatorState,
@@ -167,7 +173,7 @@ export function Calculator({ onBack }: { onBack: () => void }) {
               <button
                 type="button"
                 onClick={() => dispatch({ type: 'removeMeld', index: i })}
-                className="text-xs text-muted underline"
+                className={`text-xs text-muted ${TEXT_BUTTON}`}
               >
                 この副露を消す
               </button>
@@ -183,7 +189,7 @@ export function Calculator({ onBack }: { onBack: () => void }) {
                   key={type}
                   type="button"
                   onClick={() => dispatch({ type: 'addMeld', meldType: type })}
-                  className="rounded-lg border border-line border-b-[3px] border-b-ivory-edge bg-ivory py-2 text-sm"
+                  className={`border-b-[3px] border-b-ivory-edge bg-ivory py-2 text-sm ${SMALL_BUTTON}`}
                 >
                   {MELD_INFO[type].label}
                 </button>
@@ -269,7 +275,7 @@ export function Calculator({ onBack }: { onBack: () => void }) {
         <button
           type="button"
           onClick={() => dispatch({ type: 'reset' })}
-          className="text-sm text-muted underline underline-offset-4"
+          className={`text-sm text-muted ${TEXT_BUTTON}`}
         >
           入力をすべて消す
         </button>

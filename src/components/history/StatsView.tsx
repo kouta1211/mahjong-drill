@@ -13,7 +13,13 @@ import {
   subscribeHistory,
 } from '@/features/history/historyStore';
 import type { Level } from '@/features/drill/types';
-import { LEGEND, PANEL, PRIMARY_BUTTON } from '@/components/ui/styles';
+import {
+  LEGEND,
+  PANEL,
+  PRIMARY_BUTTON,
+  SMALL_BUTTON,
+  TEXT_BUTTON,
+} from '@/components/ui/styles';
 
 const LEVEL_NAME: Record<Level, string> = {
   1: 'Lv1 早見表',
@@ -137,14 +143,14 @@ export function StatsView({ onBack }: { onBack: () => void }) {
                     clearHistory();
                     setConfirming(false);
                   }}
-                  className="rounded-lg border border-wrong px-3 py-1 font-semibold text-wrong"
+                  className={`border-wrong! px-3 py-1 font-semibold text-wrong hover:bg-wrong/10 ${SMALL_BUTTON}`}
                 >
                   消す
                 </button>
                 <button
                   type="button"
                   onClick={() => setConfirming(false)}
-                  className="rounded-lg border border-line px-3 py-1"
+                  className={`px-3 py-1 ${SMALL_BUTTON}`}
                 >
                   やめる
                 </button>
@@ -153,7 +159,7 @@ export function StatsView({ onBack }: { onBack: () => void }) {
               <button
                 type="button"
                 onClick={() => setConfirming(true)}
-                className="text-sm text-muted underline underline-offset-4"
+                className={`text-sm text-muted ${TEXT_BUTTON}`}
               >
                 成績を消す
               </button>
