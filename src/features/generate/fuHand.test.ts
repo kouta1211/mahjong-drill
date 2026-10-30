@@ -1,10 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import { seededRng } from '@/lib/testRng';
-import { countKinds, DRAGONS, isSimple } from '@/features/tiles/tile';
-import { analyzeFu } from './analyzeFu';
-import { generateFuHand, type HandFilters } from './generateHand';
-import { interpretHand } from './interpret';
-import { isMenzen } from './types';
+import { countKinds } from '@/features/tiles/tile';
+import { analyzeFu } from '@/features/hand/analyzeFu';
+import type { HandFilters } from './buildHand';
+import { generateFuHand } from './fuHand';
+import { interpretHand } from '@/features/hand/interpret';
+import { isMenzen } from '@/features/hand/types';
+import { analyzeHand } from '@/features/yaku/analyzeHand';
 
 const SAMPLES = 300;
 
@@ -49,25 +51,10 @@ describe('generateFuHand', () => {
     }
   });
 
-  it('門前の手はリーチ付き。副露した手は役牌の刻子か断么九', () => {
+  it('門前の手はリーチ付き。どの手にも役があり、役満はない', () => {
     for (const { hand } of hands) {
-      if (isMenzen(hand)) {
-        expect(hand.riichi).toBe(true);
-        continue;
-      }
-      const all = [
-        ...hand.concealed,
-        hand.winTile,
-        ...hand.melds.flatMap((m) => m.tiles),
-      ];
-      const tanyao = all.every((t) => isSimple(t.kind));
-      const counts = countKinds([...hand.concealed, hand.winTile]);
-      const valueKinds: number[] = [...DRAGONS, hand.seatWind, hand.roundWind];
-      const valueTriplet =
-        hand.melds.some(
-          (m) => m.type !== 'chi' && valueKinds.includes(m.tiles[0]?.kind ?? -1)
-        ) || valueKinds.some((k) => (counts[k] ?? 0) >= 3);
-      expect(tanyao || valueTriplet).toBe(true);
+      if (isMenzen(hand)) expect(hand.riichi).toBe(true);
+      expect(analyzeHand(hand).ok).toBe(true);
     }
   });
 

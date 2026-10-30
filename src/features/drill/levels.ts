@@ -1,9 +1,6 @@
 import type { Payment } from '@/features/score/calcScore';
 import { CHIITOI_FU } from '@/features/hand/calcFu';
-import {
-  generateFuHand,
-  type GeneratedHand,
-} from '@/features/hand/generateHand';
+import { generateFuHand, type GeneratedHand } from '@/features/generate/fuHand';
 import { generateChoices } from './generateChoices';
 import { generateQuestions } from './generateQuestion';
 import { normalizeNumberInput, type ParseResult } from '@/lib/parseNumber';

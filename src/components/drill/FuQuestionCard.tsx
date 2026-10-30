@@ -1,4 +1,4 @@
-import type { GeneratedHand } from '@/features/hand/generateHand';
+import type { GeneratedHand } from '@/features/generate/fuHand';
 import { tileName } from '@/features/tiles/tile';
 import { HandView } from '@/components/tiles/HandView';
 

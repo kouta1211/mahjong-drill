@@ -1,4 +1,4 @@
-import type { GeneratedHand } from '@/features/hand/generateHand';
+import type { GeneratedHand } from '@/features/generate/fuHand';
 import { isMenzen } from '@/features/hand/types';
 import { parseFu } from '@/features/drill/levels';
 import { createSessionReducer } from '@/features/drill/session';
